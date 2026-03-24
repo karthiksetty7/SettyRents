@@ -3,11 +3,14 @@
   background: linear-gradient(180deg, #0f172a, #1e293b);
   color: white;
   padding: 20px;
-  transition: all 0.3s ease-in-out;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
   border-right: 1px solid #1e293b;
-  position: relative;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
   z-index: 1100;
+  transition: left 0.3s ease-in-out;
 }
 
 .sidebar nav {
@@ -22,10 +25,10 @@
   border-radius: 12px;
   margin-bottom: 10px;
   font-weight: 500;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: all 0.3s ease;
 }
 
 .sidebar a:hover {
@@ -75,21 +78,16 @@
   margin: 0;
 }
 
-/* Tablet / Mobile */
+/* Mobile / Tablet */
 @media screen and (max-width: 1024px) {
   .sidebar {
-    position: fixed;
-    left: -260px;
-    top: 0;
-    height: 100vh;
-    border-right: none;
+    left: -240px;
   }
 
   .sidebar.open {
     left: 0;
   }
 
-  /* Mobile overlay */
   .sidebar-overlay {
     display: none;
     position: fixed;
