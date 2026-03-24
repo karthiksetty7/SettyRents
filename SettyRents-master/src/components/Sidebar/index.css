@@ -11,11 +11,16 @@
   height: 100vh;
   z-index: 1100;
   transition: left 0.3s ease-in-out;
+
+  /* NEW */
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar nav {
   display: flex;
   flex-direction: column;
+  flex: 1; /* pushes logout to bottom */
 }
 
 .sidebar a {
@@ -78,6 +83,34 @@
   margin: 0;
 }
 
+/* -------- LOGOUT FOOTER -------- */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-footer .logout-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.sidebar-footer .logout-btn:hover {
+  background: #ef4444;
+  transform: translateY(-1px);
+}
+
 /* Mobile / Tablet */
 @media screen and (max-width: 1024px) {
   .sidebar {
@@ -102,5 +135,17 @@
 
   .sidebar-overlay.active {
     display: block;
+  }
+
+  .sidebar-footer .logout-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+/* Small mobile */
+@media screen and (max-width: 480px) {
+  .sidebar {
+    width: 220px;
   }
 }
