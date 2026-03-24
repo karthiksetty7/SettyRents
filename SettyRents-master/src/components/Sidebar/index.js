@@ -1,29 +1,61 @@
 import {NavLink} from 'react-router-dom'
+import logo from '../../SettyRents.png'
 import './index.css'
+import {
+  FaHome,
+  FaBuilding,
+  FaLayerGroup,
+  FaDoorOpen,
+  FaUsers,
+  FaMoneyCheckAlt,
+  FaFileInvoiceDollar,
+  FaChartBar,
+} from 'react-icons/fa'
 
-const Sidebar = ({isOpen}) => {
-return (
-<div className={`sidebar ${isOpen ? 'open' : ''}`}> <div className="logo-container"> <img
-       src="/logo.png"
-       alt="logo"
-       className="logo-img"
-     /> <h2>Rent Manager</h2> </div>
+const menuItems = [
+  {name: 'Dashboard', path: '/', icon: <FaHome />},
+  {name: 'Buildings', path: '/buildings', icon: <FaBuilding />},
+  {name: 'Floors', path: '/floors', icon: <FaLayerGroup />},
+  {name: 'Rooms', path: '/rooms', icon: <FaDoorOpen />},
+  {name: 'Tenants', path: '/tenants', icon: <FaUsers />},
+  {name: 'Rent Entry', path: '/rent', icon: <FaMoneyCheckAlt />},
+  {name: 'Bills', path: '/bills', icon: <FaFileInvoiceDollar />},
+  {name: 'Reports', path: '/reports', icon: <FaChartBar />},
+]
 
+const Sidebar = ({isOpen, closeSidebar}) => {
+  return (
+    <>
+      <div className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className='logo-container'>
+          <div className='logo-wrapper'>
+            <img src={logo} alt='logo' className='logo-img' />
+          </div>
+          <h2 className='logo-text'>Rent Manager</h2>
+        </div>
 
-  <nav>
-    <NavLink to="/">Dashboard</NavLink>
-    <NavLink to="/buildings">Buildings</NavLink>
-    <NavLink to="/floors">Floors</NavLink>
-    <NavLink to="/rooms">Rooms</NavLink>
-    <NavLink to="/tenants">Tenants</NavLink>
-    <NavLink to="/rent">Rent Entry</NavLink>
-    <NavLink to="/bills">Bills</NavLink>
-    <NavLink to="/reports">Reports</NavLink>
-  </nav>
-</div>
+        <nav>
+          {menuItems.map(item => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({isActive}) => (isActive ? 'active' : '')}
+              onClick={closeSidebar} // closes sidebar on mobile
+            >
+              <span className='icon'>{item.icon}</span>
+              <span className='link-text'>{item.name}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
 
-
-)
+      {/* Overlay for mobile */}
+      <div
+        className={`sidebar-overlay ${isOpen ? 'active' : ''}`}
+        onClick={closeSidebar}
+      ></div>
+    </>
+  )
 }
 
 export default Sidebar
