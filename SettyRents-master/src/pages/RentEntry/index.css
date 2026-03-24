@@ -1,0 +1,60 @@
+.rent-container {
+background-color: white;
+padding: 20px;
+border-radius: 10px;
+}
+
+.rent-form {
+display: flex;
+flex-wrap: wrap;
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.rent-form input,
+.rent-form select {
+padding: 10px;
+border-radius: 6px;
+border: 1px solid #ccc;
+flex: 1;
+min-width: 150px;
+}
+
+.calculation {
+width: 100%;
+display: flex;
+justify-content: space-between;
+font-weight: bold;
+}
+
+.rent-form button {
+background-color: #16a34a;
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+.rent-form button:hover {
+background-color: #15803d;
+}
+
+.table-container {
+overflow-x: auto;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+table th,
+table td {
+padding: 12px;
+border-bottom: 1px solid #e5e7eb;
+}
+
+table th {
+background-color: #f1f5f9;
+}

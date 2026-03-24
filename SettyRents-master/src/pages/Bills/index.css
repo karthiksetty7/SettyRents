@@ -1,0 +1,60 @@
+.bill-container {
+background-color: white;
+padding: 20px;
+border-radius: 10px;
+}
+
+.bill-form {
+display: flex;
+flex-wrap: wrap;
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.bill-form input,
+.bill-form select {
+padding: 10px;
+border-radius: 6px;
+border: 1px solid #ccc;
+flex: 1;
+min-width: 150px;
+}
+
+.calculation {
+width: 100%;
+display: flex;
+justify-content: space-between;
+font-weight: bold;
+}
+
+.bill-form button {
+background-color: #f59e0b;
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+.bill-form button:hover {
+background-color: #d97706;
+}
+
+.table-container {
+overflow-x: auto;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+table th,
+table td {
+padding: 12px;
+border-bottom: 1px solid #e5e7eb;
+}
+
+table th {
+background-color: #f1f5f9;
+}

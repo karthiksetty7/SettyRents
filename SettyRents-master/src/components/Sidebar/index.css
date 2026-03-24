@@ -1,0 +1,51 @@
+.sidebar {
+width: 240px;
+background: linear-gradient(180deg,#0f172a,#1e293b);
+color: white;
+padding: 20px;
+transition: 0.3s;
+}
+
+.sidebar nav {
+display: flex;
+flex-direction: column;
+}
+
+.sidebar a {
+text-decoration: none;
+color: #cbd5e1;
+padding: 12px;
+border-radius: 8px;
+margin-bottom: 5px;
+}
+
+.sidebar a.active {
+background: #6366f1;
+color: white;
+}
+
+.logo-container {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 30px;
+}
+
+.logo-img {
+width: 35px;
+}
+
+/* Tablet */
+@media screen and (max-width: 1024px) {
+.sidebar {
+position: fixed;
+left: -240px;
+top: 0;
+height: 100vh;
+z-index: 1000;
+}
+
+.sidebar.open {
+left: 0;
+}
+}

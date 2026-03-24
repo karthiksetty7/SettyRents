@@ -1,0 +1,39 @@
+.header {
+height: 70px;
+background: white;
+border-bottom: 1px solid #e2e8f0;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0 25px;
+}
+
+.header-left {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+.menu-btn {
+background: none;
+border: none;
+font-size: 20px;
+cursor: pointer;
+display: none;
+}
+
+.logout-btn {
+background: #ef4444;
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+/* show hamburger on tablet & mobile */
+@media screen and (max-width: 1024px) {
+.menu-btn {
+display: block;
+}
+}

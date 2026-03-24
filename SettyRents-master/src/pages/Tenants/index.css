@@ -1,0 +1,53 @@
+.tenant-container {
+background-color: white;
+padding: 20px;
+border-radius: 10px;
+}
+
+.tenant-form {
+display: flex;
+gap: 15px;
+flex-wrap: wrap;
+margin-bottom: 20px;
+}
+
+.tenant-form input,
+.tenant-form select {
+padding: 10px;
+border-radius: 6px;
+border: 1px solid #ccc;
+flex: 1;
+min-width: 150px;
+}
+
+.tenant-form button {
+background-color: #2563eb;
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+.tenant-form button:hover {
+background-color: #1d4ed8;
+}
+
+.table-container {
+overflow-x: auto;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+table th,
+table td {
+padding: 12px;
+border-bottom: 1px solid #e5e7eb;
+}
+
+table th {
+background-color: #f1f5f9;
+}

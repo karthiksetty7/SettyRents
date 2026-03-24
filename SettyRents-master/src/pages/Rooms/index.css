@@ -1,0 +1,58 @@
+.room-container {
+background-color: white;
+padding: 20px;
+border-radius: 10px;
+}
+
+.room-form {
+display: flex;
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.room-form input,
+.room-form select {
+padding: 10px;
+border-radius: 6px;
+border: 1px solid #ccc;
+flex: 1;
+}
+
+.room-form button {
+background-color: #2563eb;
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+.room-form button:hover {
+background-color: #1d4ed8;
+}
+
+.table-container {
+overflow-x: auto;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+table th,
+table td {
+padding: 12px;
+border-bottom: 1px solid #e5e7eb;
+}
+
+table th {
+background-color: #f1f5f9;
+}
+
+/* Mobile */
+@media screen and (max-width: 768px) {
+.room-form {
+flex-direction: column;
+}
+}
