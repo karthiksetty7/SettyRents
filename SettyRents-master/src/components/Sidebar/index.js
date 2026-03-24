@@ -10,6 +10,7 @@ import {
   FaMoneyCheckAlt,
   FaFileInvoiceDollar,
   FaChartBar,
+  FaSignOutAlt,
 } from 'react-icons/fa'
 
 const menuItems = [
@@ -24,6 +25,11 @@ const menuItems = [
 ]
 
 const Sidebar = ({isOpen, closeSidebar}) => {
+  const handleLogout = () => {
+    // TODO: add logout logic (remove token, redirect, etc.)
+    console.log('Logout clicked')
+  }
+
   return (
     <>
       <div className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -40,16 +46,24 @@ const Sidebar = ({isOpen, closeSidebar}) => {
               key={item.path}
               to={item.path}
               className={({isActive}) => (isActive ? 'active' : '')}
-              onClick={closeSidebar} // closes sidebar on mobile
+              onClick={closeSidebar}
             >
               <span className='icon'>{item.icon}</span>
               <span className='link-text'>{item.name}</span>
             </NavLink>
           ))}
         </nav>
+
+        {/* Logout at bottom */}
+        <div className='sidebar-footer'>
+          <button type='button' className='logout-btn' onClick={handleLogout}>
+            <FaSignOutAlt />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Mobile Overlay */}
       <div
         className={`sidebar-overlay ${isOpen ? 'active' : ''}`}
         onClick={closeSidebar}
