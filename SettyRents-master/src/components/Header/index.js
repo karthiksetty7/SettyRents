@@ -5,7 +5,11 @@ const Header = ({toggleSidebar}) => {
   return (
     <div className='header'>
       <div className='header-left'>
-        <button className='menu-btn' onClick={toggleSidebar}>
+        <button
+          className='menu-btn'
+          onClick={toggleSidebar}
+          aria-label='Toggle sidebar'
+        >
           <FaBars />
         </button>
       </div>
