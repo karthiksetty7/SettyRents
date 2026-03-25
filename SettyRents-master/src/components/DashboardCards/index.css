@@ -1,37 +1,83 @@
+/* ---------- CARDS CONTAINER ---------- */
 .cards-container {
-display: grid;
-grid-template-columns: repeat(4, 1fr);
-gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cards desktop */
+  gap: 20px;
+  padding: 0 20px;
+  margin-bottom: 40px;
 }
 
+/* ---------- INDIVIDUAL CARD ---------- */
 .card {
-background-color: white;
-padding: 20px;
-border-radius: 12px;
-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-text-align: center;
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
-color: #64748b;
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 10px;
 }
 
 .card p {
-font-size: 28px;
-font-weight: bold;
-margin-top: 10px;
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  color: #1e293b;
 }
 
-/* Tablet */
+/* ---------- RESPONSIVE CARDS ---------- */
+/* Tablet: 2 columns */
 @media screen and (max-width: 1024px) {
-.cards-container {
-grid-template-columns: repeat(2, 1fr);
-}
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 15px;
+  }
 }
 
-/* Mobile */
+/* Mobile: 1 column */
 @media screen and (max-width: 600px) {
-.cards-container {
-grid-template-columns: 1fr;
+  .cards-container {
+    grid-template-columns: 1fr;
+    padding: 0 10px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .card p {
+    font-size: 24px;
+  }
 }
+
+/* Extra small phones */
+@media screen and (max-width: 400px) {
+  .cards-container {
+    padding: 0 5px;
+    gap: 15px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .card h3 {
+    font-size: 0.95rem;
+  }
+
+  .card p {
+    font-size: 20px;
+  }
 }
