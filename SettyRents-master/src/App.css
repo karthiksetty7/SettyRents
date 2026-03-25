@@ -13,7 +13,7 @@ body {
 
 .app-container {
   height: 100vh;
-  background-color: #011526;
+  background-color: #f1f5f9;
   display: flex;
   flex-direction: column;
   align-items: center;
