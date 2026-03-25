@@ -1,53 +1,188 @@
+/* ---------- TENANT CONTAINER ---------- */
 .tenant-container {
-background-color: white;
-padding: 20px;
-border-radius: 10px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 1200px;
+  margin: 20px auto; /* spacing from top/bottom */
 }
 
+/* ---------- CENTERED HEADINGS ---------- */
+.tenant-container h2 {
+  text-align: center;
+  margin: 15px 0 25px 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+/* ---------- TENANT FORM ---------- */
 .tenant-form {
-display: flex;
-gap: 15px;
-flex-wrap: wrap;
-margin-bottom: 20px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 30px; /* extra spacing below form */
+  margin-top: 10px;
 }
 
 .tenant-form input,
 .tenant-form select {
-padding: 10px;
-border-radius: 6px;
-border: 1px solid #ccc;
-flex: 1;
-min-width: 150px;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+  min-width: 150px;
+  font-size: 1rem;
 }
 
 .tenant-form button {
-background-color: #2563eb;
-color: white;
-border: none;
-padding: 10px 20px;
-border-radius: 6px;
-cursor: pointer;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
 }
 
 .tenant-form button:hover {
-background-color: #1d4ed8;
+  background-color: #1d4ed8;
 }
 
+/* ---------- TABLE CONTAINER ---------- */
 .table-container {
-overflow-x: auto;
+  overflow-x: auto;
+  margin-top: 10px;
 }
 
 table {
-width: 100%;
-border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
 }
 
 table th,
 table td {
-padding: 12px;
-border-bottom: 1px solid #e5e7eb;
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  font-size: 0.95rem;
 }
 
 table th {
-background-color: #f1f5f9;
+  background-color: #f1f5f9;
+  font-weight: 600;
+}
+
+/* ---------- RESPONSIVE ADJUSTMENTS ---------- */
+@media (max-width: 992px) {
+  .tenant-form input,
+  .tenant-form select,
+  .tenant-form button {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+
+  table th,
+  table td {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tenant-container {
+    padding: 16px;
+  }
+
+  .tenant-form {
+    gap: 12px;
+  }
+
+  table th,
+  table td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+
+  table {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .tenant-form {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .tenant-form input,
+  .tenant-form select,
+  .tenant-form button {
+    width: 100%;
+  }
+
+  /* MOBILE CARD-LIKE TABLE */
+  table {
+    display: block;
+    border: 0;
+  }
+
+  table thead {
+    display: none;
+  }
+
+  table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* spacing between rows */
+  }
+
+  table tr {
+    display: block;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); /* subtle card shadow */
+  }
+
+  table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    border: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  table td:last-child {
+    border-bottom: 0;
+  }
+
+  table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #334155;
+    margin-right: 10px;
+    flex: 1;
+  }
+
+  table td span {
+    flex: 1;
+    text-align: right;
+  }
+}
+
+@media (max-width: 360px) {
+  .tenant-container {
+    padding: 12px;
+  }
+
+  .tenant-container h2 {
+    font-size: 1.2rem;
+  }
+
+  table td {
+    font-size: 0.75rem;
+  }
 }
