@@ -8,9 +8,7 @@ const Header = ({toggleSidebar}) => {
         <button className='menu-btn' onClick={toggleSidebar}>
           <FaBars />
         </button>
-        <h1>Rental Management System</h1>
       </div>
-      <button className='logout-btn'>Logout</button>
     </div>
   )
 }
