@@ -1,57 +1,48 @@
 /* ---------- HEADER ---------- */
 .header {
-  height: 70px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1050;
-  transition: all 0.3s ease-in-out;
-
-  padding: 0 20px;
-  width: 100%;
-  box-sizing: border-box;
-
-  border-bottom: none;
-  box-shadow: none;
+  display: none; /* desktop: hidden, no height */
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-}
-
-/* Hide menu by default (desktop/tablet) */
-.menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  color: #1e293b;
-  transition: transform 0.2s ease;
-}
-
-.menu-btn:hover {
-  transform: scale(1.1);
-}
-
-/* Show menu only on mobile/tablet */
+/* ---------- TABLET & MOBILE ---------- */
 @media screen and (max-width: 1024px) {
   .header {
+    display: flex; /* visible only on mobile/tablet */
+    justify-content: flex-start;
+    align-items: center;
+    height: 70px; /* header height */
     padding: 0 20px;
-    background: transparent;
-    border-bottom: none;
+    width: 100%;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    background: white; /* optional: contrast with sidebar/content */
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
   }
 
   .menu-btn {
     display: block;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #1e293b;
+    transition: transform 0.2s ease;
+  }
+
+  .menu-btn:hover {
+    transform: scale(1.1);
   }
 }
 
+/* ---------- SMALL MOBILE ---------- */
 @media screen and (max-width: 640px) {
   .header {
+    height: 60px; /* slightly smaller for small screens */
     padding: 0 15px;
   }
 
