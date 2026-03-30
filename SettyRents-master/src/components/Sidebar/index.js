@@ -19,7 +19,7 @@ const menuItems = [
   {name: 'Floors', path: '/floors', icon: <FaLayerGroup />},
   {name: 'Rooms', path: '/rooms', icon: <FaDoorOpen />},
   {name: 'Tenants', path: '/tenants', icon: <FaUsers />},
-  {name: 'Rent Entry', path: '/rent', icon: <FaMoneyCheckAlt />},
+  {name: 'Rent Entry', path: '/rent-entry', icon: <FaMoneyCheckAlt />},
   {name: 'Bills', path: '/bills', icon: <FaFileInvoiceDollar />},
   {name: 'Reports', path: '/reports', icon: <FaChartBar />},
 ]
