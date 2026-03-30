@@ -87,7 +87,8 @@ const Rooms = () => {
 
         <h2>Rooms List</h2>
 
-        <div className='table-container'>
+        {/* Desktop Table */}
+        <div className='table-container desktop-table'>
           <table>
             <thead>
               <tr>
@@ -96,23 +97,36 @@ const Rooms = () => {
                 <th>Room</th>
               </tr>
             </thead>
-
             <tbody>
               {rooms.map(item => (
                 <tr key={item.id}>
-                  <td data-label='Building'>
-                    <span>{item.buildingName}</span>
-                  </td>
-                  <td data-label='Floor'>
-                    <span>{item.floorName}</span>
-                  </td>
-                  <td data-label='Room'>
-                    <span>{item.roomNumber}</span>
-                  </td>
+                  <td>{item.buildingName}</td>
+                  <td>{item.floorName}</td>
+                  <td>{item.roomNumber}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className='mobile-list'>
+          {rooms.map(item => (
+            <div key={item.id} className='mobile-row'>
+              <div className='mobile-field'>
+                <span className='label'>Building:</span>
+                <span className='value'>{item.buildingName}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Floor:</span>
+                <span className='value'>{item.floorName}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Room:</span>
+                <span className='value'>{item.roomNumber}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </Layout>
