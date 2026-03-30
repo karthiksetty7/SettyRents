@@ -4,7 +4,8 @@
   padding: 20px;
   border-radius: 10px;
   max-width: 1200px;
-  margin: 20px auto; /* spacing from top/bottom */
+  margin: 20px auto;
+  box-sizing: border-box;
 }
 
 /* ---------- CENTERED HEADINGS ---------- */
@@ -13,6 +14,7 @@
   margin: 15px 0 25px 0;
   font-size: 1.5rem;
   color: #1e293b;
+  word-break: break-word;
 }
 
 /* ---------- TENANT FORM ---------- */
@@ -20,7 +22,7 @@
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
-  margin-bottom: 30px; /* extra spacing below form */
+  margin-bottom: 30px;
   margin-top: 10px;
 }
 
@@ -32,8 +34,16 @@
   flex: 1;
   min-width: 150px;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
+/* FILE INPUT */
+.tenant-form input[type='file'] {
+  padding: 8px;
+  background-color: #f8fafc;
+}
+
+/* FORM BUTTON */
 .tenant-form button {
   background-color: #2563eb;
   color: white;
@@ -49,6 +59,70 @@
   background-color: #1d4ed8;
 }
 
+/* CANCEL BUTTON */
+.cancel-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #dc2626;
+}
+
+/* ---------- PRINT BUTTON ---------- */
+.print-btn {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.print-btn:hover {
+  background-color: #15803d;
+}
+
+/* ---------- EDIT & DELETE BUTTONS ---------- */
+.edit-btn {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-right: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #d97706;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
 /* ---------- TABLE CONTAINER ---------- */
 .table-container {
   overflow-x: auto;
@@ -58,7 +132,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
+  min-width: 700px;
 }
 
 table th,
@@ -72,6 +146,26 @@ table td {
 table th {
   background-color: #f1f5f9;
   font-weight: 600;
+}
+
+/* ---------- FILE LINK STYLE ---------- */
+table a {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+table a:hover {
+  text-decoration: underline;
+}
+
+/* FILE BADGE */
+table td a {
+  background-color: #e0f2fe;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  word-break: break-word;
 }
 
 /* ---------- RESPONSIVE ADJUSTMENTS ---------- */
@@ -122,7 +216,7 @@ table th {
     width: 100%;
   }
 
-  /* MOBILE CARD-LIKE TABLE */
+  /* MOBILE CARD TABLE */
   table {
     display: block;
     border: 0;
@@ -135,7 +229,7 @@ table th {
   table tbody {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* spacing between rows */
+    gap: 15px;
   }
 
   table tr {
@@ -143,12 +237,13 @@ table th {
     background-color: #f9fafb;
     border-radius: 8px;
     padding: 12px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); /* subtle card shadow */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   }
 
   table td {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: flex-start;
     padding: 6px 0;
     font-size: 0.85rem;
     border: 0;
@@ -163,13 +258,21 @@ table th {
     content: attr(data-label);
     font-weight: 600;
     color: #334155;
-    margin-right: 10px;
-    flex: 1;
+    margin-bottom: 4px;
   }
 
   table td span {
-    flex: 1;
-    text-align: right;
+    text-align: left;
+    margin-bottom: 6px;
+  }
+
+  /* STACK EDIT/DELETE/PRINT BUTTONS */
+  .edit-btn,
+  .delete-btn,
+  .print-btn {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 6px;
   }
 }
 
@@ -184,5 +287,55 @@ table th {
 
   table td {
     font-size: 0.75rem;
+  }
+}
+
+/* ---------- PRINT STYLES (VERY IMPORTANT) ---------- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .tenant-container,
+  .tenant-container * {
+    visibility: visible;
+  }
+
+  .tenant-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* hide buttons while printing */
+  .tenant-form,
+  .print-btn,
+  .edit-btn,
+  .delete-btn,
+  .cancel-btn {
+    display: none !important;
+  }
+
+  table {
+    min-width: 100%;
+    page-break-inside: auto;
+  }
+
+  table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  table td,
+  table th {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  img,
+  embed {
+    max-width: 100% !important;
+    page-break-inside: avoid;
   }
 }
