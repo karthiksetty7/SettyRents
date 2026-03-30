@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa'
 
 const menuItems = [
-  {name: 'Dashboard', path: '/', icon: <FaHome />},
+  {name: 'Dashboard', path: '/dashboard', icon: <FaHome />},
   {name: 'Buildings', path: '/buildings', icon: <FaBuilding />},
   {name: 'Floors', path: '/floors', icon: <FaLayerGroup />},
   {name: 'Rooms', path: '/rooms', icon: <FaDoorOpen />},
