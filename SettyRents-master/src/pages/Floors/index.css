@@ -7,7 +7,6 @@
   margin: 20px auto;
 }
 
-/* ---------- CENTERED HEADINGS ---------- */
 .floor-container h2 {
   text-align: center;
   margin: 15px 0 25px 0;
@@ -91,6 +90,7 @@ table th {
   }
 }
 
+/* ---------- MOBILE CARD STYLE ---------- */
 @media (max-width: 480px) {
   .floor-form input,
   .floor-form select,
@@ -98,57 +98,59 @@ table th {
     width: 100%;
   }
 
-  /* MOBILE CARD-LIKE TABLE */
-  table {
-    display: block;
-    border: 0;
-  }
-
-  table thead {
+  .desktop-table {
     display: none;
   }
 
-  table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  table tr {
+  .mobile-list {
     display: block;
-    background-color: #f9fafb;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   }
 
-  table td {
+  .mobile-row {
+    background-color: #f9fafb;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .mobile-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .mobile-field {
     display: flex;
     justify-content: space-between;
-    padding: 6px 0;
-    font-size: 0.85rem;
-    border: 0;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
     border-bottom: 1px solid #e5e7eb;
   }
 
-  table td:last-child {
-    border-bottom: 0;
+  .mobile-field:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
 
-  table td::before {
-    content: attr(data-label);
+  .mobile-field .label {
     font-weight: 600;
     color: #334155;
-    margin-right: 10px;
     flex: 1;
   }
 
-  table td span {
+  .mobile-field .value {
+    color: #1e293b;
     flex: 1;
     text-align: right;
+    word-break: break-word;
   }
 }
 
+/* Extra small screens */
 @media (max-width: 360px) {
   .floor-container {
     padding: 12px;
