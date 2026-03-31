@@ -3,56 +3,45 @@
   padding: 20px;
   border-radius: 10px;
   max-width: 1200px;
-  margin: auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  font-family: Arial, sans-serif;
+  margin: 20px auto;
+  box-sizing: border-box;
+}
+
+.rent-container h2 {
+  text-align: center;
+  margin: 20px 0 25px;
+  font-size: 1.5rem;
+  color: #1e293b;
 }
 
 .rent-form {
   display: flex;
-  flex-wrap: wrap;
   gap: 15px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
 }
 
 .rent-form input,
 .rent-form select {
-  padding: 10px;
+  padding: 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  flex: 1 1 200px;
+  flex: 1;
   min-width: 150px;
-  box-sizing: border-box;
-}
-
-.rent-form input[readonly] {
-  background-color: #f3f4f6;
-}
-
-.calculation {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  margin-top: 10px;
-  flex-wrap: wrap;
-  gap: 10px;
+  font-size: 1rem;
 }
 
 .rent-form button {
-  background-color: #16a34a;
+  background-color: #2563eb;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border-radius: 6px;
   cursor: pointer;
-  flex: 1 1 100%;
-  max-width: 200px;
-  transition: background-color 0.2s;
 }
 
-.rent-form button:hover {
-  background-color: #15803d;
+.cancel-btn {
+  background-color: #ef4444;
 }
 
 .table-container {
@@ -62,20 +51,37 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 700px;
 }
 
 table th,
 table td {
   padding: 12px;
   border-bottom: 1px solid #e5e7eb;
-  text-align: center;
-  vertical-align: middle;
+  text-align: left;
 }
 
 table th {
   background-color: #f1f5f9;
-  font-weight: 600;
+}
+
+.edit-btn {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .due-overdue {
@@ -88,95 +94,37 @@ table th {
   font-weight: bold;
 }
 
-/* Responsive Breakpoints */
+/* MOBILE */
 @media (max-width: 768px) {
-  .rent-form input,
-  .rent-form select {
-    flex: 1 1 100%;
-  }
-
-  .calculation {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  table th,
-  table td {
-    padding: 8px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
   table {
-    display: block;
-    border: 0;
-    font-size: 12px;
-    min-width: 100%;
-  }
-
-  table thead {
     display: none;
   }
 
-  table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  table tr {
+  .mobile-list {
     display: block;
-    background-color: #f9fafb;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   }
 
-  table td {
+  .mobile-row {
+    background: #f9fafb;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .mobile-field {
     display: flex;
     justify-content: space-between;
-    padding: 6px 0;
-    border: 0;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 0.85rem;
+    margin-bottom: 8px;
   }
 
-  table td:last-child {
-    border-bottom: 0;
-  }
-
-  table td::before {
-    content: attr(data-label);
+  .mobile-field .label {
     font-weight: 600;
-    color: #334155;
-    flex: 1;
-    text-align: left;
-  }
-
-  table td span {
-    flex: 1;
-    text-align: right;
-  }
-}
-
-@media (max-width: 360px) {
-  .rent-container {
-    padding: 10px;
-  }
-
-  .calculation {
-    font-size: 14px;
-  }
-
-  table td {
-    font-size: 0.75rem;
   }
 
   .rent-form input,
   .rent-form select,
   .rent-form button {
-    font-size: 14px;
-    padding: 6px;
+    flex: 1 1 100%;
   }
 }
