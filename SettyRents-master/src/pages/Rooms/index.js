@@ -18,6 +18,7 @@ const Rooms = () => {
   const [floorId, setFloorId] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [rooms, setRooms] = useState([])
+  const [editId, setEditId] = useState(null)
 
   const filteredFloors = floors.filter(
     floor => floor.buildingId === parseInt(buildingId),
@@ -29,28 +30,59 @@ const Rooms = () => {
     const building = buildings.find(b => b.id === parseInt(buildingId))
     const floor = floors.find(f => f.id === parseInt(floorId))
 
+    if (!building || !floor) return
+
     const newRoom = {
-      id: Date.now(),
-      buildingName: building?.name,
-      floorName: floor?.name,
+      id: editId || Date.now(),
+      buildingId: parseInt(buildingId),
+      floorId: parseInt(floorId),
+      buildingName: building.name,
+      floorName: floor.name,
       roomNumber,
     }
 
-    setRooms([...rooms, newRoom])
-    setRoomNumber('')
+    if (editId) {
+      setRooms(prev => prev.map(r => (r.id === editId ? newRoom : r)))
+      setEditId(null)
+    } else {
+      setRooms(prev => [...prev, newRoom])
+    }
+
+    handleCancel()
+  }
+
+  const handleEdit = room => {
+    setEditId(room.id)
+    setBuildingId(room.buildingId.toString())
+    setFloorId(room.floorId.toString())
+    setRoomNumber(room.roomNumber)
+  }
+
+  const handleDelete = id => {
+    if (window.confirm('Delete this room?')) {
+      setRooms(prev => prev.filter(r => r.id !== id))
+    }
+  }
+
+  const handleCancel = () => {
+    setEditId(null)
     setBuildingId('')
     setFloorId('')
+    setRoomNumber('')
   }
 
   return (
     <Layout>
       <div className='room-container'>
-        <h2>Add Room</h2>
+        <h2>{editId ? 'Update Room' : 'Add Room'}</h2>
 
         <form className='room-form' onSubmit={handleSubmit}>
           <select
             value={buildingId}
-            onChange={e => setBuildingId(e.target.value)}
+            onChange={e => {
+              setBuildingId(e.target.value)
+              setFloorId('') // reset floor when building changes
+            }}
             required
           >
             <option value=''>Select Building</option>
@@ -82,7 +114,13 @@ const Rooms = () => {
             required
           />
 
-          <button type='submit'>Add Room</button>
+          <button type='submit'>{editId ? 'Update Room' : 'Save Room'}</button>
+
+          {editId && (
+            <button type='button' className='cancel-btn' onClick={handleCancel}>
+              Cancel
+            </button>
+          )}
         </form>
 
         <h2>Rooms List</h2>
@@ -95,6 +133,7 @@ const Rooms = () => {
                 <th>Building</th>
                 <th>Floor</th>
                 <th>Room</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -103,13 +142,27 @@ const Rooms = () => {
                   <td>{item.buildingName}</td>
                   <td>{item.floorName}</td>
                   <td>{item.roomNumber}</td>
+                  <td>
+                    <button
+                      className='edit-btn'
+                      onClick={() => handleEdit(item)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className='delete-btn'
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Mobile Cards */}
+        {/* Mobile View */}
         <div className='mobile-list'>
           {rooms.map(item => (
             <div key={item.id} className='mobile-row'>
@@ -117,13 +170,27 @@ const Rooms = () => {
                 <span className='label'>Building:</span>
                 <span className='value'>{item.buildingName}</span>
               </div>
+
               <div className='mobile-field'>
                 <span className='label'>Floor:</span>
                 <span className='value'>{item.floorName}</span>
               </div>
+
               <div className='mobile-field'>
                 <span className='label'>Room:</span>
                 <span className='value'>{item.roomNumber}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <button className='edit-btn' onClick={() => handleEdit(item)}>
+                  Edit
+                </button>
+                <button
+                  className='delete-btn'
+                  onClick={() => handleDelete(item.id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}
