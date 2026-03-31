@@ -1,9 +1,16 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import Layout from '../../components/Layout'
 import './index.css'
 
 const Bills = () => {
-  const [records, setRecords] = useState([])
+  const [records, setRecords] = useState(() => {
+    const saved = localStorage.getItem('billRecords')
+    return saved ? JSON.parse(saved) : []
+  })
+
+  useEffect(() => {
+    localStorage.setItem('billRecords', JSON.stringify(records))
+  }, [records])
 
   // Form states
   const [tenantName, setTenantName] = useState('')
@@ -12,8 +19,8 @@ const Bills = () => {
   const [buildingName, setBuildingName] = useState('')
   const [previous, setPrevious] = useState('')
   const [current, setCurrent] = useState('')
-  const [units, setUnits] = useState('') // Manual units
-  const [rate, setRate] = useState('') // Manual rate
+  const [units, setUnits] = useState('')
+  const [rate, setRate] = useState('')
   const [amount, setAmount] = useState(0)
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
@@ -25,19 +32,20 @@ const Bills = () => {
   const [filterMonth, setFilterMonth] = useState('')
   const [filterYear, setFilterYear] = useState('')
 
-  // Calculate Units and Amount whenever Current or Previous changes
-  const handleUnitCalculation = () => {
+  // AUTO CALCULATION
+  useEffect(() => {
     if (previous !== '' && current !== '') {
       const calculatedUnits = Number(current) - Number(previous)
-      setUnits(calculatedUnits >= 0 ? calculatedUnits : 0)
-      if (rate !== '') setAmount(calculatedUnits * Number(rate))
-    }
-  }
+      const finalUnits = calculatedUnits >= 0 ? calculatedUnits : 0
+      setUnits(finalUnits)
 
-  const handleRateChange = e => {
-    setRate(e.target.value)
-    if (units !== '') setAmount(Number(e.target.value) * Number(units))
-  }
+      if (rate !== '') {
+        setAmount(finalUnits * Number(rate))
+      } else {
+        setAmount(0)
+      }
+    }
+  }, [previous, current, rate])
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -59,7 +67,6 @@ const Bills = () => {
 
     setRecords([...records, newRecord])
 
-    // Reset form
     setTenantName('')
     setRoomNumber('')
     setFloor('')
@@ -92,62 +99,20 @@ const Bills = () => {
     setRecords(records.filter(r => r.id !== id))
   }
 
+  const handleDelete = id => {
+    if (!window.confirm('Delete this bill?')) return
+    setRecords(records.filter(r => r.id !== id))
+  }
+
   const handlePrint = record => {
     const printWindow = window.open('', '', 'height=700,width=800')
     printWindow.document.write(`
-      <html>
-        <head>
-          <title>Electricity Bill</title>
-          <style>
-            body{font-family:Arial,sans-serif;padding:20px}
-            .bill-header{text-align:center;margin-bottom:20px}
-            .bill-header h1{margin:0;color:#f59e0b}
-            .bill-info,.bill-table{width:100%;margin-bottom:20px}
-            .bill-info td{padding:6px 10px}
-            .bill-table th,.bill-table td{border:1px solid #000;padding:8px;text-align:left}
-            .bill-table{border-collapse:collapse;width:100%}
-            .total{text-align:right;font-weight:bold;margin-top:10px}
-          </style>
-        </head>
-        <body>
-          <div class="bill-header">
-            <h1>Electricity Bill</h1>
-            <p>${record.buildingName}</p>
-          </div>
-          <table class="bill-info">
-            <tr>
-              <td><strong>Tenant:</strong> ${record.tenantName}</td>
-              <td><strong>Room:</strong> ${record.room}</td>
-            </tr>
-            <tr>
-              <td><strong>Floor:</strong> ${record.floor}</td>
-              <td><strong>Month/Year:</strong> ${record.month} ${record.year}</td>
-            </tr>
-          </table>
-          <table class="bill-table">
-            <thead>
-              <tr>
-                <th>Previous Reading</th>
-                <th>Current Reading</th>
-                <th>Units</th>
-                <th>Rate (₹)</th>
-                <th>Amount (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>${record.previous}</td>
-                <td>${record.current}</td>
-                <td>${record.units}</td>
-                <td>${record.rate}</td>
-                <td>${record.amount}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="total">Total Amount: ₹${record.amount}</p>
-          <p>Thank you for your payment!</p>
-        </body>
-      </html>
+      <h2>Electricity Bill</h2>
+      <p>Name: ${record.tenantName}</p>
+      <p>Room: ${record.room}</p>
+      <p>Units: ${record.units}</p>
+      <p>Amount: ₹${record.amount}</p>
+      <hr/>
     `)
     printWindow.document.close()
     printWindow.print()
@@ -156,11 +121,13 @@ const Bills = () => {
   const filteredRecords = records.filter(
     r =>
       (filterTenant
-        ? r.tenantName.toLowerCase() === filterTenant.toLowerCase()
+        ? r.tenantName.toLowerCase().includes(filterTenant.toLowerCase())
         : true) &&
-      (filterRoom ? r.room.toLowerCase() === filterRoom.toLowerCase() : true) &&
+      (filterRoom
+        ? r.room.toLowerCase().includes(filterRoom.toLowerCase())
+        : true) &&
       (filterBuilding
-        ? r.buildingName.toLowerCase() === filterBuilding.toLowerCase()
+        ? r.buildingName.toLowerCase().includes(filterBuilding.toLowerCase())
         : true) &&
       (filterMonth ? r.month === filterMonth : true) &&
       (filterYear ? r.year.toString() === filterYear.toString() : true),
@@ -168,49 +135,18 @@ const Bills = () => {
 
   const handlePrintAll = () => {
     const printWindow = window.open('', '', 'height=700,width=800')
-    printWindow.document.write(
-      '<html><head><title>Filtered Bills</title></head><body>',
-    )
+
     filteredRecords.forEach(record => {
       printWindow.document.write(`
-        <div style="page-break-after:always">
-          <h1 style="text-align:center;color:#f59e0b">Electricity Bill</h1>
-          <p style="text-align:center">${record.buildingName}</p>
-          <table style="width:100%;margin-bottom:20px">
-            <tr>
-              <td><strong>Tenant:</strong> ${record.tenantName}</td>
-              <td><strong>Room:</strong> ${record.room}</td>
-            </tr>
-            <tr>
-              <td><strong>Floor:</strong> ${record.floor}</td>
-              <td><strong>Month/Year:</strong> ${record.month} ${record.year}</td>
-            </tr>
-          </table>
-          <table style="width:100%;border-collapse:collapse;border:1px solid #000;margin-bottom:20px">
-            <thead>
-              <tr>
-                <th>Previous</th>
-                <th>Current</th>
-                <th>Units</th>
-                <th>Rate</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>${record.previous}</td>
-                <td>${record.current}</td>
-                <td>${record.units}</td>
-                <td>${record.rate}</td>
-                <td>${record.amount}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="text-align:right;font-weight:bold">Total Amount: ₹${record.amount}</p>
-        </div>
+        <h2>Electricity Bill</h2>
+        <p>Name: ${record.tenantName}</p>
+        <p>Room: ${record.room}</p>
+        <p>Units: ${record.units}</p>
+        <p>Amount: ₹${record.amount}</p>
+        <hr/>
       `)
     })
-    printWindow.document.write('</body></html>')
+
     printWindow.document.close()
     printWindow.print()
   }
@@ -220,31 +156,27 @@ const Bills = () => {
       <div className='bill-container'>
         <h2>Electricity Bills</h2>
 
-        {/* Bill Form */}
+        {/* FORM */}
         <form className='bill-form' onSubmit={handleSubmit}>
           <input
-            type='text'
             placeholder='Tenant Name'
             value={tenantName}
             onChange={e => setTenantName(e.target.value)}
             required
           />
           <input
-            type='text'
             placeholder='Room Number'
             value={roomNumber}
             onChange={e => setRoomNumber(e.target.value)}
             required
           />
           <input
-            type='text'
             placeholder='Floor'
             value={floor}
             onChange={e => setFloor(e.target.value)}
             required
           />
           <input
-            type='text'
             placeholder='Building Name'
             value={buildingName}
             onChange={e => setBuildingName(e.target.value)}
@@ -253,134 +185,77 @@ const Bills = () => {
 
           <input
             type='number'
-            placeholder='Previous Reading'
+            placeholder='Previous'
             value={previous}
             onChange={e => setPrevious(e.target.value)}
-            onBlur={handleUnitCalculation}
             required
           />
           <input
             type='number'
-            placeholder='Current Reading'
+            placeholder='Current'
             value={current}
             onChange={e => setCurrent(e.target.value)}
-            onBlur={handleUnitCalculation}
             required
           />
+          <input type='number' placeholder='Units' value={units} readOnly />
           <input
             type='number'
-            placeholder='Units'
-            value={units}
-            onChange={e => setUnits(e.target.value)}
-            required
-          />
-          <input
-            type='number'
-            placeholder='Rate per unit'
+            placeholder='Rate'
             value={rate}
-            onChange={handleRateChange}
+            onChange={e => setRate(e.target.value)}
             required
           />
           <input type='number' placeholder='Amount' value={amount} readOnly />
 
-          <select
+          <input
+            placeholder='Month'
             value={month}
             onChange={e => setMonth(e.target.value)}
             required
-          >
-            <option value=''>Select Month</option>
-            {[
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December',
-            ].map(m => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-
+          />
           <input
-            type='number'
             placeholder='Year'
             value={year}
             onChange={e => setYear(e.target.value)}
             required
           />
 
-          <div className='calculation'>
-            <p>Units: {units}</p>
-            <p>Amount: ₹{amount}</p>
-          </div>
-
           <button type='submit'>Save Bill</button>
         </form>
 
-        {/* Filters */}
-        <h2>Filter Bills</h2>
+        {/* FILTER */}
+        <h3>Filter Bills</h3>
         <div className='filter-container'>
           <input
-            placeholder='Tenant Name'
+            placeholder='Tenant'
             value={filterTenant}
             onChange={e => setFilterTenant(e.target.value)}
           />
           <input
-            placeholder='Room Number'
+            placeholder='Room'
             value={filterRoom}
             onChange={e => setFilterRoom(e.target.value)}
           />
           <input
-            placeholder='Building Name'
+            placeholder='Building'
             value={filterBuilding}
             onChange={e => setFilterBuilding(e.target.value)}
           />
-          <select
+          <input
+            placeholder='Month'
             value={filterMonth}
             onChange={e => setFilterMonth(e.target.value)}
-          >
-            <option value=''>All Months</option>
-            {[
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December',
-            ].map(m => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+          />
           <input
-            type='number'
             placeholder='Year'
             value={filterYear}
             onChange={e => setFilterYear(e.target.value)}
           />
-          <button type='button' onClick={handlePrintAll}>
-            Print Filtered Bills
-          </button>
+          <button onClick={handlePrintAll}>Print Filtered</button>
         </div>
 
-        {/* Bill Records Table */}
-        <h2>Bill Records</h2>
-        <div className='table-container'>
+        {/* DESKTOP TABLE */}
+        <div className='table-container desktop-table'>
           <table>
             <thead>
               <tr>
@@ -398,6 +273,7 @@ const Bills = () => {
                 <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {filteredRecords.map(item => (
                 <tr key={item.id}>
@@ -413,13 +289,75 @@ const Bills = () => {
                   <td>{item.month}</td>
                   <td>{item.year}</td>
                   <td>
-                    <button onClick={() => handleEdit(item.id)}>Edit</button>
-                    <button onClick={() => handlePrint(item)}>Print</button>
+                    <button
+                      className='edit-btn'
+                      onClick={() => handleEdit(item.id)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className='delete-btn'
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className='print-btn'
+                      onClick={() => handlePrint(item)}
+                    >
+                      Print
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* MOBILE */}
+        <div className='mobile-list'>
+          {filteredRecords.map(item => (
+            <div key={item.id} className='mobile-row'>
+              <div className='mobile-field'>
+                <span className='label'>Tenant:</span>
+                <span>{item.tenantName}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Room:</span>
+                <span>{item.room}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Building:</span>
+                <span>{item.buildingName}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Units:</span>
+                <span>{item.units}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Amount:</span>
+                <span>₹{item.amount}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <button
+                  className='edit-btn'
+                  onClick={() => handleEdit(item.id)}
+                >
+                  Edit
+                </button>
+                <button
+                  className='delete-btn'
+                  onClick={() => handleDelete(item.id)}
+                >
+                  Delete
+                </button>
+                <button className='print-btn' onClick={() => handlePrint(item)}>
+                  Print
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </Layout>
