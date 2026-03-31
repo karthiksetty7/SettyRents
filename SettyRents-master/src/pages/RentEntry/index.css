@@ -1,4 +1,5 @@
-.rent-container {
+/* PAGE CONTAINER */
+.rent-page {
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -7,13 +8,14 @@
   box-sizing: border-box;
 }
 
-.rent-container h2 {
+.rent-page h2 {
   text-align: center;
   margin: 20px 0 25px;
   font-size: 1.5rem;
   color: #1e293b;
 }
 
+/* FORM */
 .rent-form {
   display: flex;
   gap: 15px;
@@ -44,6 +46,18 @@
   background-color: #ef4444;
 }
 
+/* CALCULATION BOX */
+.rent-calculation {
+  flex: 1 1 100%;
+  display: flex;
+  justify-content: space-between;
+  background: #f8fafc;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* TABLE */
 .table-container {
   overflow-x: auto;
 }
@@ -65,6 +79,7 @@ table th {
   background-color: #f1f5f9;
 }
 
+/* BUTTONS */
 .edit-btn {
   background-color: #f59e0b;
   color: white;
@@ -84,6 +99,7 @@ table th {
   cursor: pointer;
 }
 
+/* DUE COLORS */
 .due-overdue {
   color: #dc2626;
   font-weight: bold;
@@ -95,6 +111,10 @@ table th {
 }
 
 /* MOBILE */
+.mobile-list {
+  display: none;
+}
+
 @media (max-width: 768px) {
   table {
     display: none;
@@ -126,5 +146,10 @@ table th {
   .rent-form select,
   .rent-form button {
     flex: 1 1 100%;
+  }
+
+  .rent-calculation {
+    flex-direction: column;
+    gap: 5px;
   }
 }
