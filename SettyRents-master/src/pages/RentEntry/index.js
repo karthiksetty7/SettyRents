@@ -23,7 +23,7 @@ const RentEntry = () => {
   const [editingId, setEditingId] = useState(null)
 
   useEffect(() => {
-    if (!tenantId || editingId) return // FIX: stop autofill when editing
+    if (!tenantId || editingId) return
 
     const tId = parseInt(tenantId)
 
@@ -134,8 +134,8 @@ const RentEntry = () => {
 
   return (
     <Layout>
-      <div className='rent-container'>
-        <h2>{editingId ? 'Update Rent Entry' : 'Rent Entry'}</h2>
+      <div className='rent-page'>
+        <h2>{editingId ? 'Update Rent Entry' : 'Add Rent Entry'}</h2>
 
         <form className='rent-form' onSubmit={handleSubmit}>
           <select
@@ -164,18 +164,21 @@ const RentEntry = () => {
             value={rent}
             onChange={e => setRent(e.target.value)}
           />
+
           <input
             type='number'
             placeholder='Water'
             value={water}
             onChange={e => setWater(e.target.value)}
           />
+
           <input
             type='number'
             placeholder='Maintenance'
             value={maintenance}
             onChange={e => setMaintenance(e.target.value)}
           />
+
           <input
             type='number'
             placeholder='Electricity'
@@ -196,6 +199,7 @@ const RentEntry = () => {
             value={paid}
             onChange={e => setPaid(e.target.value)}
           />
+
           <input
             type='number'
             placeholder='Advance'
@@ -208,7 +212,7 @@ const RentEntry = () => {
             <option value='vacating'>Vacating</option>
           </select>
 
-          <div className='calculation'>
+          <div className='rent-calculation'>
             <p>Total: {total}</p>
             <p className={due > 0 ? 'due-overdue' : 'due-refund'}>Due: {due}</p>
           </div>
@@ -226,7 +230,7 @@ const RentEntry = () => {
 
         <h2>Rent Records</h2>
 
-        <div className='table-container desktop-table'>
+        <div className='table-container'>
           <table>
             <thead>
               <tr>
@@ -272,38 +276,39 @@ const RentEntry = () => {
             <div key={e.id} className='mobile-row'>
               <div className='mobile-field'>
                 <span className='label'>Tenant:</span>
-                <span className='value'>{e.tenant}</span>
+                <span>{e.tenant}</span>
               </div>
 
               <div className='mobile-field'>
                 <span className='label'>Room:</span>
-                <span className='value'>{e.room}</span>
+                <span>{e.room}</span>
               </div>
 
               <div className='mobile-field'>
                 <span className='label'>Month:</span>
-                <span className='value'>{e.month}</span>
+                <span>{e.month}</span>
               </div>
 
               <div className='mobile-field'>
                 <span className='label'>Total:</span>
-                <span className='value'>{e.total}</span>
+                <span>{e.total}</span>
               </div>
 
               <div className='mobile-field'>
                 <span className='label'>Paid:</span>
-                <span className='value'>{e.paid}</span>
+                <span>{e.paid}</span>
               </div>
 
               <div className='mobile-field'>
                 <span className='label'>Due:</span>
-                <span className='value'>{e.due}</span>
+                <span>{e.due}</span>
               </div>
 
               <div className='mobile-field'>
                 <button className='edit-btn' onClick={() => handleEdit(e)}>
                   Edit
                 </button>
+
                 <button
                   className='delete-btn'
                   onClick={() => handleDelete(e.id)}
