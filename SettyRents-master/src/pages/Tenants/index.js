@@ -43,7 +43,6 @@ const Tenants = () => {
 
   const handleSubmit = e => {
     e.preventDefault()
-
     const building = buildings.find(b => b.id === parseInt(buildingId))
     const floor = floors.find(f => f.id === parseInt(floorId))
     const room = rooms.find(r => r.id === parseInt(roomId))
@@ -69,30 +68,25 @@ const Tenants = () => {
       )
       setEditingId(null)
     } else {
-      const newTenant = {
-        id: Date.now(),
-        name,
-        phone,
-        advance,
-        joiningDate,
-        building: building?.name,
-        floor: floor?.name,
-        room: room?.number,
-        file: file ? URL.createObjectURL(file) : null,
-        fileType: file?.type,
-      }
-      setTenants([...tenants, newTenant])
+      setTenants(prev => [
+        ...prev,
+        {
+          id: Date.now(),
+          name,
+          phone,
+          advance,
+          joiningDate,
+          building: building?.name,
+          floor: floor?.name,
+          room: room?.number,
+          file: file ? URL.createObjectURL(file) : null,
+          fileType: file?.type,
+        },
+      ])
     }
 
-    // reset form
-    setName('')
-    setPhone('')
-    setAdvance('')
-    setJoiningDate('')
-    setBuildingId('')
-    setFloorId('')
-    setRoomId('')
-    setFile(null)
+    // Reset all form fields after add/update
+    handleCancel()
   }
 
   const handleEdit = tenant => {
@@ -101,12 +95,15 @@ const Tenants = () => {
     setPhone(tenant.phone)
     setAdvance(tenant.advance)
     setJoiningDate(tenant.joiningDate)
+
     const buildingObj = buildings.find(b => b.name === tenant.building)
     setBuildingId(buildingObj?.id || '')
+
     const floorObj = floors.find(
       f => f.name === tenant.floor && f.buildingId === buildingObj?.id,
     )
     setFloorId(floorObj?.id || '')
+
     const roomObj = rooms.find(
       r =>
         r.number === tenant.room &&
@@ -134,7 +131,6 @@ const Tenants = () => {
     setFile(null)
   }
 
-  // ✅ PRINT SINGLE TENANT (PDF-friendly, multi-page)
   const printTenant = tenant => {
     const printWindow = window.open('', '_blank')
     printWindow.document.write(`
@@ -158,7 +154,6 @@ const Tenants = () => {
           <p><b>Room:</b> ${tenant.room}</p>
           <p><b>Advance:</b> ${tenant.advance}</p>
           <p><b>Joining Date:</b> ${tenant.joiningDate}</p>
-
           ${
             tenant.file
               ? tenant.fileType?.includes('image')
@@ -166,17 +161,13 @@ const Tenants = () => {
                 : `<embed src="${tenant.file}" type="${tenant.fileType}" />`
               : ''
           }
-
-          <script>
-            window.onload = function() { window.print(); window.close(); }
-          </script>
+          <script>window.onload = function(){ window.print(); window.close(); }</script>
         </body>
       </html>
     `)
     printWindow.document.close()
   }
 
-  // ✅ PRINT ALL TENANTS (PDF-friendly, multi-page)
   const printAll = () => {
     const printWindow = window.open('', '_blank')
     const content = tenants
@@ -204,15 +195,11 @@ const Tenants = () => {
 
     printWindow.document.write(`
       <html>
-        <head>
-          <title>All Tenants</title>
-        </head>
+        <head><title>All Tenants</title></head>
         <body>
           <h2 style="text-align:center;">All Tenants</h2>
           ${content}
-          <script>
-            window.onload = function() { window.print(); window.close(); }
-          </script>
+          <script>window.onload = function(){ window.print(); window.close(); }</script>
         </body>
       </html>
     `)
@@ -231,9 +218,9 @@ const Tenants = () => {
             required
           >
             <option value=''>Select Building</option>
-            {buildings.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.name}
+            {buildings.map(b => (
+              <option key={b.id} value={b.id}>
+                {b.name}
               </option>
             ))}
           </select>
@@ -244,9 +231,9 @@ const Tenants = () => {
             required
           >
             <option value=''>Select Floor</option>
-            {filteredFloors.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.name}
+            {filteredFloors.map(f => (
+              <option key={f.id} value={f.id}>
+                {f.name}
               </option>
             ))}
           </select>
@@ -257,9 +244,9 @@ const Tenants = () => {
             required
           >
             <option value=''>Select Room</option>
-            {filteredRooms.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.number}
+            {filteredRooms.map(r => (
+              <option key={r.id} value={r.id}>
+                {r.number}
               </option>
             ))}
           </select>
@@ -296,6 +283,7 @@ const Tenants = () => {
             accept='image/*,.pdf'
             onChange={e => setFile(e.target.files[0])}
           />
+
           <button type='submit'>
             {editingId ? 'Update Tenant' : 'Add Tenant'}
           </button>
@@ -306,15 +294,9 @@ const Tenants = () => {
           )}
         </form>
 
-        <div style={{textAlign: 'right', marginBottom: '10px'}}>
-          <button onClick={printAll} className='print-btn'>
-            Print All
-          </button>
-        </div>
-
         <h2>Tenants List</h2>
 
-        <div className='table-container'>
+        <div className='table-container desktop-table'>
           <table>
             <thead>
               <tr>
@@ -331,54 +313,37 @@ const Tenants = () => {
               </tr>
             </thead>
             <tbody>
-              {tenants.map(item => (
-                <tr key={item.id}>
-                  <td data-label='Name'>
-                    <span>{item.name}</span>
-                  </td>
-                  <td data-label='Phone'>
-                    <span>{item.phone}</span>
-                  </td>
-                  <td data-label='Building'>
-                    <span>{item.building}</span>
-                  </td>
-                  <td data-label='Floor'>
-                    <span>{item.floor}</span>
-                  </td>
-                  <td data-label='Room'>
-                    <span>{item.room}</span>
-                  </td>
-                  <td data-label='Advance'>
-                    <span>{item.advance}</span>
-                  </td>
-                  <td data-label='Joining'>
-                    <span>{item.joiningDate}</span>
-                  </td>
-                  <td data-label='Document'>
-                    {item.file && (
-                      <a href={item.file} target='_blank' rel='noreferrer'>
+              {tenants.map(t => (
+                <tr key={t.id}>
+                  <td>{t.name}</td>
+                  <td>{t.phone}</td>
+                  <td>{t.building}</td>
+                  <td>{t.floor}</td>
+                  <td>{t.room}</td>
+                  <td>{t.advance}</td>
+                  <td>{t.joiningDate}</td>
+                  <td>
+                    {t.file && (
+                      <a href={t.file} target='_blank' rel='noreferrer'>
                         View
                       </a>
                     )}
                   </td>
-                  <td data-label='Actions'>
-                    <button
-                      className='edit-btn'
-                      onClick={() => handleEdit(item)}
-                    >
+                  <td>
+                    <button className='edit-btn' onClick={() => handleEdit(t)}>
                       Edit
                     </button>
                     <button
                       className='delete-btn'
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(t.id)}
                     >
                       Delete
                     </button>
                   </td>
-                  <td data-label='Print'>
+                  <td>
                     <button
-                      onClick={() => printTenant(item)}
                       className='print-btn'
+                      onClick={() => printTenant(t)}
                     >
                       Print
                     </button>
@@ -387,6 +352,71 @@ const Tenants = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className='mobile-list'>
+          {tenants.map(t => (
+            <div key={t.id} className='mobile-row'>
+              <div className='mobile-field'>
+                <span className='label'>Name:</span>{' '}
+                <span className='value'>{t.name}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Phone:</span>{' '}
+                <span className='value'>{t.phone}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Building:</span>{' '}
+                <span className='value'>{t.building}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Floor:</span>{' '}
+                <span className='value'>{t.floor}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Room:</span>{' '}
+                <span className='value'>{t.room}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Advance:</span>{' '}
+                <span className='value'>{t.advance}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Joining:</span>{' '}
+                <span className='value'>{t.joiningDate}</span>
+              </div>
+              {t.file && (
+                <div className='mobile-field'>
+                  <span className='label'>Document:</span>{' '}
+                  <span className='value'>
+                    <a href={t.file} target='_blank' rel='noreferrer'>
+                      View
+                    </a>
+                  </span>
+                </div>
+              )}
+              <div className='mobile-field'>
+                <button className='edit-btn' onClick={() => handleEdit(t)}>
+                  Edit
+                </button>
+                <button
+                  className='delete-btn'
+                  onClick={() => handleDelete(t.id)}
+                >
+                  Delete
+                </button>
+                <button className='print-btn' onClick={() => printTenant(t)}>
+                  Print
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{textAlign: 'right', marginTop: '10px'}}>
+          <button className='print-btn' onClick={printAll}>
+            Print All
+          </button>
         </div>
       </div>
     </Layout>
