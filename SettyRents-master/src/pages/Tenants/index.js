@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useRef} from 'react'
 import Layout from '../../components/Layout'
 import './index.css'
 
@@ -32,6 +32,9 @@ const Tenants = () => {
 
   const [tenants, setTenants] = useState([])
   const [editingId, setEditingId] = useState(null)
+
+  // File input ref
+  const fileInputRef = useRef(null)
 
   const filteredFloors = floors.filter(
     f => f.buildingId === parseInt(buildingId),
@@ -85,7 +88,6 @@ const Tenants = () => {
       ])
     }
 
-    // Reset all form fields after add/update
     handleCancel()
   }
 
@@ -111,6 +113,12 @@ const Tenants = () => {
         r.floorId === floorObj?.id,
     )
     setRoomId(roomObj?.id || '')
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+    setFile(null)
   }
 
   const handleDelete = id => {
@@ -129,6 +137,10 @@ const Tenants = () => {
     setFloorId('')
     setRoomId('')
     setFile(null)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const printTenant = tenant => {
@@ -281,6 +293,7 @@ const Tenants = () => {
           <input
             type='file'
             accept='image/*,.pdf'
+            ref={fileInputRef}
             onChange={e => setFile(e.target.files[0])}
           />
 
@@ -296,6 +309,7 @@ const Tenants = () => {
 
         <h2>Tenants List</h2>
 
+        {/* Desktop Table */}
         <div className='table-container desktop-table'>
           <table>
             <thead>
@@ -354,6 +368,7 @@ const Tenants = () => {
           </table>
         </div>
 
+        {/* Mobile List */}
         <div className='mobile-list'>
           {tenants.map(t => (
             <div key={t.id} className='mobile-row'>
