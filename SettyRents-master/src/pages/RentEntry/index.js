@@ -20,12 +20,13 @@ const RentEntry = () => {
   const [status, setStatus] = useState('not vacated')
 
   const [entries, setEntries] = useState([])
-  const [lastValues, setLastValues] = useState({})
+  const [editingId, setEditingId] = useState(null)
 
-  // Auto-fill last month's values if tenant exists
   useEffect(() => {
-    if (!tenantId) return
+    if (!tenantId || editingId) return // FIX: stop autofill when editing
+
     const tId = parseInt(tenantId)
+
     const tenantEntries = entries
       .filter(e => e.tenantId === tId)
       .sort((a, b) => (a.month > b.month ? 1 : -1))
@@ -37,20 +38,14 @@ const RentEntry = () => {
       setMaintenance(lastEntry.maintenance)
       setElectricity(lastEntry.electricity)
       setPreviousDue(lastEntry.due)
-      setPaid('')
-      setStatus('not vacated')
-      setAdvance('')
     } else {
       setRent('')
       setWater(300)
       setMaintenance('')
       setElectricity('')
       setPreviousDue(0)
-      setPaid('')
-      setStatus('not vacated')
-      setAdvance('')
     }
-  }, [tenantId, entries])
+  }, [tenantId, entries, editingId])
 
   const calculateTotal = () =>
     Number(rent || 0) +
@@ -72,35 +67,20 @@ const RentEntry = () => {
 
   const handleSubmit = e => {
     e.preventDefault()
-    if (!tenantId || !month) {
-      alert('Please select tenant and month')
-      return
-    }
 
-    const tId = parseInt(tenantId)
-    const tenant = tenants.find(t => t.id === tId)
-    const isFirstMonth = !entries.find(entry => entry.tenantId === tId)
-
-    if (isFirstMonth && (!rent || !water || !maintenance || !electricity)) {
-      alert(
-        'First month for new tenant requires specifying Rent, Water, Maintenance, Electricity',
-      )
-      return
-    }
-
-    const waterValue = water ? Number(water) : lastValues[tId]?.water || 300
+    const tenant = tenants.find(t => t.id === parseInt(tenantId))
 
     const newEntry = {
-      id: Date.now(),
-      tenantId: tId,
+      id: editingId || Date.now(),
+      tenantId: parseInt(tenantId),
       tenant: tenant?.name,
       room: tenant?.room,
       month,
       rent: Number(rent || 0),
-      water: waterValue,
+      water: Number(water || 300),
       maintenance: Number(maintenance || 0),
       electricity: Number(electricity || 0),
-      previousDue: isFirstMonth ? 0 : Number(previousDue || 0),
+      previousDue,
       total,
       paid: Number(paid || 0),
       advance: Number(advance || 0),
@@ -108,39 +88,18 @@ const RentEntry = () => {
       due,
     }
 
-    const existingIndex = entries.findIndex(
-      e => e.tenantId === tId && e.month === month,
-    )
-    let updatedEntries = [...entries]
-    if (existingIndex !== -1) updatedEntries[existingIndex] = newEntry
-    else updatedEntries.push(newEntry)
+    if (editingId) {
+      setEntries(prev => prev.map(e => (e.id === editingId ? newEntry : e)))
+      setEditingId(null)
+    } else {
+      setEntries(prev => [...prev, newEntry])
+    }
 
-    setEntries(updatedEntries)
-
-    setLastValues(prev => ({
-      ...prev,
-      [tId]: {
-        rent: newEntry.rent,
-        water: newEntry.water,
-        maintenance: newEntry.maintenance,
-        electricity: newEntry.electricity,
-        previousDue: newEntry.due,
-      },
-    }))
-
-    // Reset fields
-    setMonth('')
-    setRent('')
-    setWater(newEntry.water)
-    setMaintenance('')
-    setElectricity('')
-    setPreviousDue(newEntry.due)
-    setPaid('')
-    setStatus('not vacated')
-    setAdvance('')
+    handleCancel()
   }
 
   const handleEdit = entry => {
+    setEditingId(entry.id)
     setTenantId(entry.tenantId.toString())
     setMonth(entry.month)
     setRent(entry.rent)
@@ -149,14 +108,35 @@ const RentEntry = () => {
     setElectricity(entry.electricity)
     setPreviousDue(entry.previousDue)
     setPaid(entry.paid)
-    setStatus(entry.status)
     setAdvance(entry.advance)
+    setStatus(entry.status)
+  }
+
+  const handleDelete = id => {
+    if (window.confirm('Delete this entry?')) {
+      setEntries(prev => prev.filter(e => e.id !== id))
+    }
+  }
+
+  const handleCancel = () => {
+    setEditingId(null)
+    setTenantId('')
+    setMonth('')
+    setRent('')
+    setWater('')
+    setMaintenance('')
+    setElectricity('')
+    setPreviousDue(0)
+    setPaid('')
+    setAdvance('')
+    setStatus('not vacated')
   }
 
   return (
     <Layout>
       <div className='rent-container'>
-        <h2>Rent Entry</h2>
+        <h2>{editingId ? 'Update Rent Entry' : 'Rent Entry'}</h2>
+
         <form className='rent-form' onSubmit={handleSubmit}>
           <select
             value={tenantId}
@@ -164,9 +144,9 @@ const RentEntry = () => {
             required
           >
             <option value=''>Select Tenant</option>
-            {tenants.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.name} - Room {item.room}
+            {tenants.map(t => (
+              <option key={t.id} value={t.id}>
+                {t.name} - Room {t.room}
               </option>
             ))}
           </select>
@@ -184,24 +164,21 @@ const RentEntry = () => {
             value={rent}
             onChange={e => setRent(e.target.value)}
           />
-
           <input
             type='number'
-            placeholder='Water Bill'
+            placeholder='Water'
             value={water}
             onChange={e => setWater(e.target.value)}
           />
-
           <input
             type='number'
             placeholder='Maintenance'
             value={maintenance}
             onChange={e => setMaintenance(e.target.value)}
           />
-
           <input
             type='number'
-            placeholder='Electricity Bill'
+            placeholder='Electricity'
             value={electricity}
             onChange={e => setElectricity(e.target.value)}
           />
@@ -215,14 +192,13 @@ const RentEntry = () => {
 
           <input
             type='number'
-            placeholder='Amount Paid'
+            placeholder='Paid'
             value={paid}
             onChange={e => setPaid(e.target.value)}
           />
-
           <input
             type='number'
-            placeholder='Advance (if vacating)'
+            placeholder='Advance'
             value={advance}
             onChange={e => setAdvance(e.target.value)}
           />
@@ -234,90 +210,109 @@ const RentEntry = () => {
 
           <div className='calculation'>
             <p>Total: {total}</p>
-            <p
-              className={
-                status === 'vacating'
-                  ? due >= 0
-                    ? 'due-overdue'
-                    : 'due-refund'
-                  : due > 0
-                  ? 'due-overdue'
-                  : 'due-refund'
-              }
-            >
-              Due:{' '}
-              {status === 'vacating'
-                ? due >= 0
-                  ? due + ' (Tenant owes owner)'
-                  : -due + ' (Owner owes tenant)'
-                : due}
-            </p>
+            <p className={due > 0 ? 'due-overdue' : 'due-refund'}>Due: {due}</p>
           </div>
 
-          <button type='submit'>Save Entry</button>
+          <button type='submit'>
+            {editingId ? 'Update Entry' : 'Save Entry'}
+          </button>
+
+          {editingId && (
+            <button type='button' className='cancel-btn' onClick={handleCancel}>
+              Cancel
+            </button>
+          )}
         </form>
 
-        <h2>Rent Records (Click row to edit)</h2>
-        <div className='table-container'>
+        <h2>Rent Records</h2>
+
+        <div className='table-container desktop-table'>
           <table>
             <thead>
               <tr>
                 <th>Tenant</th>
                 <th>Room</th>
                 <th>Month</th>
-                <th>Rent</th>
-                <th>Water</th>
-                <th>Maintenance</th>
-                <th>Electricity</th>
-                <th>Previous Due</th>
                 <th>Total</th>
                 <th>Paid</th>
-                <th>Advance</th>
-                <th>Status</th>
                 <th>Due</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {entries.map(item => (
-                <tr
-                  key={item.id}
-                  style={{cursor: 'pointer'}}
-                  onClick={() => handleEdit(item)}
-                >
-                  <td data-label='Tenant'>{item.tenant}</td>
-                  <td data-label='Room'>{item.room}</td>
-                  <td data-label='Month'>{item.month}</td>
-                  <td data-label='Rent'>{item.rent}</td>
-                  <td data-label='Water'>{item.water}</td>
-                  <td data-label='Maintenance'>{item.maintenance}</td>
-                  <td data-label='Electricity'>{item.electricity}</td>
-                  <td data-label='Previous Due'>{item.previousDue}</td>
-                  <td data-label='Total'>{item.total}</td>
-                  <td data-label='Paid'>{item.paid}</td>
-                  <td data-label='Advance'>{item.advance}</td>
-                  <td data-label='Status'>{item.status}</td>
-                  <td
-                    data-label='Due'
-                    className={
-                      item.status === 'vacating'
-                        ? item.due >= 0
-                          ? 'due-overdue'
-                          : 'due-refund'
-                        : item.due > 0
-                        ? 'due-overdue'
-                        : 'due-refund'
-                    }
-                  >
-                    {item.status === 'vacating'
-                      ? item.due >= 0
-                        ? item.due + ' (Tenant owes owner)'
-                        : -item.due + ' (Owner owes tenant)'
-                      : item.due}
+              {entries.map(e => (
+                <tr key={e.id}>
+                  <td>{e.tenant}</td>
+                  <td>{e.room}</td>
+                  <td>{e.month}</td>
+                  <td>{e.total}</td>
+                  <td>{e.paid}</td>
+                  <td className={e.due > 0 ? 'due-overdue' : 'due-refund'}>
+                    {e.due}
+                  </td>
+                  <td>
+                    <button className='edit-btn' onClick={() => handleEdit(e)}>
+                      Edit
+                    </button>
+                    <button
+                      className='delete-btn'
+                      onClick={() => handleDelete(e.id)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className='mobile-list'>
+          {entries.map(e => (
+            <div key={e.id} className='mobile-row'>
+              <div className='mobile-field'>
+                <span className='label'>Tenant:</span>
+                <span className='value'>{e.tenant}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <span className='label'>Room:</span>
+                <span className='value'>{e.room}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <span className='label'>Month:</span>
+                <span className='value'>{e.month}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <span className='label'>Total:</span>
+                <span className='value'>{e.total}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <span className='label'>Paid:</span>
+                <span className='value'>{e.paid}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <span className='label'>Due:</span>
+                <span className='value'>{e.due}</span>
+              </div>
+
+              <div className='mobile-field'>
+                <button className='edit-btn' onClick={() => handleEdit(e)}>
+                  Edit
+                </button>
+                <button
+                  className='delete-btn'
+                  onClick={() => handleDelete(e.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </Layout>
