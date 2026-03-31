@@ -1,11 +1,10 @@
 .bill-container {
-  background-color: white;
+  background: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
 }
 
+/* FORM */
 .bill-form,
 .filter-container {
   display: flex;
@@ -15,9 +14,7 @@
 }
 
 .bill-form input,
-.bill-form select,
-.filter-container input,
-.filter-container select {
+.filter-container input {
   padding: 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -25,40 +22,23 @@
   min-width: 150px;
 }
 
-.bill-form button,
-.filter-container button {
+.bill-form button {
+  background: #f59e0b;
+  color: white;
+  border: none;
   padding: 10px 20px;
   border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.bill-form button {
-  background-color: #f59e0b;
-  color: white;
-}
-
-.bill-form button:hover {
-  background-color: #d97706;
 }
 
 .filter-container button {
-  background-color: #3b82f6;
+  background: #3b82f6;
   color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
 }
 
-.filter-container button:hover {
-  background-color: #2563eb;
-}
-
-.calculation {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-}
-
+/* TABLE */
 .table-container {
   overflow-x: auto;
 }
@@ -73,64 +53,77 @@ table th,
 table td {
   padding: 12px;
   border-bottom: 1px solid #e5e7eb;
-  text-align: left;
 }
 
 table th {
-  background-color: #f1f5f9;
-  font-weight: bold;
+  background: #f1f5f9;
 }
 
-table td button {
-  margin-right: 5px;
-  padding: 5px 10px;
+/* BUTTONS */
+.edit-btn {
+  background: #f59e0b;
+  color: white;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
 }
 
-table td button:first-child {
-  background-color: #f59e0b;
+.delete-btn {
+  background: #ef4444;
   color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
 }
 
-table td button:first-child:hover {
-  background-color: #d97706;
-}
-
-table td button:last-child {
-  background-color: #3b82f6;
+.print-btn {
+  background: #16a34a;
   color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
 }
 
-table td button:last-child:hover {
-  background-color: #2563eb;
+/* MOBILE */
+.mobile-list {
+  display: none;
 }
 
+@media (max-width: 768px) {
+  table {
+    display: none;
+  }
+
+  .mobile-list {
+    display: block;
+  }
+
+  .mobile-row {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .mobile-field {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .label {
+    font-weight: 600;
+  }
+}
+
+/* PRINT */
 @media print {
   body * {
     visibility: hidden;
   }
+
   .bill-container,
   .bill-container * {
     visibility: visible;
-  }
-  .bill-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 0;
-  }
-  .bill-form,
-  .filter-container,
-  .table-container button {
-    display: none;
-  }
-  table,
-  table th,
-  table td {
-    border: 1px solid #000 !important;
-    padding: 8px;
   }
 }
