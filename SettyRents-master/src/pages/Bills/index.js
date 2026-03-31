@@ -104,16 +104,108 @@ const Bills = () => {
     setRecords(records.filter(r => r.id !== id))
   }
 
+  const generatePrintHTML = record => {
+    return `
+    <html>
+    <head>
+      <title>Electricity Bill</title>
+     <style>
+         body { 
+              font-family: Arial; 
+              padding:20px; 
+              }
+
+           .invoice { 
+    border:2px solid #000; 
+    padding:20px; 
+    margin-bottom:25px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  h2 { 
+    text-align:center; 
+    margin-bottom:20px; 
+  }
+
+  table { 
+    width:100%; 
+    border-collapse:collapse; 
+    margin-top:10px;
+  }
+
+  th, td { 
+    border:1px solid #000; 
+    padding:10px; 
+    text-align:left;
+  }
+
+  th { 
+    background:#f2f2f2; 
+  }
+
+  .total { 
+    font-weight:bold; 
+    font-size:16px;
+  }
+</style>
+    </head>
+    <body>
+      <div class="invoice">
+        <h2>Electricity Bill</h2>
+
+        <table>
+          <tr>
+            <th>Tenant</th><td>${record.tenantName}</td>
+            <th>Room</th><td>${record.room}</td>
+          </tr>
+          <tr>
+            <th>Floor</th><td>${record.floor}</td>
+            <th>Building</th><td>${record.buildingName}</td>
+          </tr>
+          <tr>
+            <th>Month</th><td>${record.month}</td>
+            <th>Year</th><td>${record.year}</td>
+          </tr>
+        </table>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Previous</th>
+              <th>Current</th>
+              <th>Units</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${record.previous}</td>
+              <td>${record.current}</td>
+              <td>${record.units}</td>
+              <td>${record.rate}</td>
+              <td>₹ ${record.amount}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table>
+          <tr class="total">
+            <td>Total Payable</td>
+            <td>₹ ${record.amount}</td>
+          </tr>
+        </table>
+
+      </div>
+    </body>
+    </html>
+    `
+  }
+
   const handlePrint = record => {
-    const printWindow = window.open('', '', 'height=700,width=800')
-    printWindow.document.write(`
-      <h2>Electricity Bill</h2>
-      <p>Name: ${record.tenantName}</p>
-      <p>Room: ${record.room}</p>
-      <p>Units: ${record.units}</p>
-      <p>Amount: ₹${record.amount}</p>
-      <hr/>
-    `)
+    const printWindow = window.open('', '', 'height=700,width=900')
+    printWindow.document.write(generatePrintHTML(record))
     printWindow.document.close()
     printWindow.print()
   }
@@ -134,19 +226,10 @@ const Bills = () => {
   )
 
   const handlePrintAll = () => {
-    const printWindow = window.open('', '', 'height=700,width=800')
-
+    const printWindow = window.open('', '', 'height=700,width=900')
     filteredRecords.forEach(record => {
-      printWindow.document.write(`
-        <h2>Electricity Bill</h2>
-        <p>Name: ${record.tenantName}</p>
-        <p>Room: ${record.room}</p>
-        <p>Units: ${record.units}</p>
-        <p>Amount: ₹${record.amount}</p>
-        <hr/>
-      `)
+      printWindow.document.write(generatePrintHTML(record))
     })
-
     printWindow.document.close()
     printWindow.print()
   }
@@ -156,7 +239,6 @@ const Bills = () => {
       <div className='bill-container'>
         <h2>Electricity Bills</h2>
 
-        {/* FORM */}
         <form className='bill-form' onSubmit={handleSubmit}>
           <input
             placeholder='Tenant Name'
@@ -182,7 +264,6 @@ const Bills = () => {
             onChange={e => setBuildingName(e.target.value)}
             required
           />
-
           <input
             type='number'
             placeholder='Previous'
@@ -206,7 +287,6 @@ const Bills = () => {
             required
           />
           <input type='number' placeholder='Amount' value={amount} readOnly />
-
           <input
             placeholder='Month'
             value={month}
@@ -219,11 +299,9 @@ const Bills = () => {
             onChange={e => setYear(e.target.value)}
             required
           />
-
           <button type='submit'>Save Bill</button>
         </form>
 
-        {/* FILTER */}
         <h3>Filter Bills</h3>
         <div className='filter-container'>
           <input
@@ -254,8 +332,7 @@ const Bills = () => {
           <button onClick={handlePrintAll}>Print Filtered</button>
         </div>
 
-        {/* DESKTOP TABLE */}
-        <div className='table-container desktop-table'>
+        <div className='table-container'>
           <table>
             <thead>
               <tr>
@@ -263,17 +340,13 @@ const Bills = () => {
                 <th>Room</th>
                 <th>Floor</th>
                 <th>Building</th>
-                <th>Previous</th>
-                <th>Current</th>
                 <th>Units</th>
-                <th>Rate</th>
                 <th>Amount</th>
                 <th>Month</th>
                 <th>Year</th>
                 <th>Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {filteredRecords.map(item => (
                 <tr key={item.id}>
@@ -281,10 +354,7 @@ const Bills = () => {
                   <td>{item.room}</td>
                   <td>{item.floor}</td>
                   <td>{item.buildingName}</td>
-                  <td>{item.previous}</td>
-                  <td>{item.current}</td>
                   <td>{item.units}</td>
-                  <td>{item.rate}</td>
                   <td>{item.amount}</td>
                   <td>{item.month}</td>
                   <td>{item.year}</td>
@@ -314,32 +384,44 @@ const Bills = () => {
           </table>
         </div>
 
-        {/* MOBILE */}
+        {/* MOBILE VIEW */}
         <div className='mobile-list'>
           {filteredRecords.map(item => (
-            <div key={item.id} className='mobile-row'>
+            <div className='mobile-row' key={item.id}>
               <div className='mobile-field'>
-                <span className='label'>Tenant:</span>
+                <span className='label'>Tenant</span>
                 <span>{item.tenantName}</span>
               </div>
               <div className='mobile-field'>
-                <span className='label'>Room:</span>
+                <span className='label'>Room</span>
                 <span>{item.room}</span>
               </div>
               <div className='mobile-field'>
-                <span className='label'>Building:</span>
+                <span className='label'>Floor</span>
+                <span>{item.floor}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Building</span>
                 <span>{item.buildingName}</span>
               </div>
               <div className='mobile-field'>
-                <span className='label'>Units:</span>
+                <span className='label'>Units</span>
                 <span>{item.units}</span>
               </div>
               <div className='mobile-field'>
-                <span className='label'>Amount:</span>
-                <span>₹{item.amount}</span>
+                <span className='label'>Amount</span>
+                <span>₹ {item.amount}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Month</span>
+                <span>{item.month}</span>
+              </div>
+              <div className='mobile-field'>
+                <span className='label'>Year</span>
+                <span>{item.year}</span>
               </div>
 
-              <div className='mobile-field'>
+              <div className='mobile-actions'>
                 <button
                   className='edit-btn'
                   onClick={() => handleEdit(item.id)}
