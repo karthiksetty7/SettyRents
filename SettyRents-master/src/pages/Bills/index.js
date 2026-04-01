@@ -12,7 +12,21 @@ const Bills = () => {
     localStorage.setItem('billRecords', JSON.stringify(records))
   }, [records])
 
-  // Form states
+  // LOGO BASE64
+  const [logoBase64, setLogoBase64] = useState('')
+
+  useEffect(() => {
+    fetch('/SettyRents.png')
+      .then(res => res.blob())
+      .then(blob => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setLogoBase64(reader.result)
+        }
+        reader.readAsDataURL(blob)
+      })
+  }, [])
+
   const [tenantName, setTenantName] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [floor, setFloor] = useState('')
@@ -25,14 +39,12 @@ const Bills = () => {
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
 
-  // Filter states
   const [filterTenant, setFilterTenant] = useState('')
   const [filterRoom, setFilterRoom] = useState('')
   const [filterBuilding, setFilterBuilding] = useState('')
   const [filterMonth, setFilterMonth] = useState('')
   const [filterYear, setFilterYear] = useState('')
 
-  // AUTO CALCULATION
   useEffect(() => {
     if (previous !== '' && current !== '') {
       const calculatedUnits = Number(current) - Number(previous)
@@ -104,110 +116,134 @@ const Bills = () => {
     setRecords(records.filter(r => r.id !== id))
   }
 
-  const generatePrintHTML = record => {
-    return `
-    <html>
-    <head>
-      <title>Electricity Bill</title>
-     <style>
-         body { 
-              font-family: Arial; 
-              padding:20px; 
-              }
+  const generatePrintHTML = records => {
+    return (
+      `
+  <html>
+  <head>
+    <title>Electricity Bills</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin:0; padding:0; }
 
-           .invoice { 
-    border:2px solid #000; 
-    padding:20px; 
-    margin-bottom:25px;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
+      .page {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        page-break-after: always;
+      }
 
-  h2 { 
-    text-align:center; 
-    margin-bottom:20px; 
-  }
+      .invoice {
+        border:2px solid #000;
+        padding:15px;
+        margin:10px;
+        flex: 1;
+        box-sizing: border-box;
+      }
 
-  table { 
-    width:100%; 
-    border-collapse:collapse; 
-    margin-top:10px;
-  }
+      .logo-container { text-align:center; margin-bottom:10px; }
+      .logo { max-width:100px; }
 
-  th, td { 
-    border:1px solid #000; 
-    padding:10px; 
-    text-align:left;
-  }
+      h2 { text-align:center; margin:10px 0; font-size:16px; }
 
-  th { 
-    background:#f2f2f2; 
-  }
+      table { width:100%; border-collapse:collapse; margin-top:5px; font-size:12px; }
 
-  .total { 
-    font-weight:bold; 
-    font-size:16px;
-  }
-</style>
-    </head>
-    <body>
-      <div class="invoice">
-        <h2>Electricity Bill</h2>
+      th, td { border:1px solid #000; padding:6px; text-align:left; vertical-align: middle; }
 
-        <table>
-          <tr>
-            <th>Tenant</th><td>${record.tenantName}</td>
-            <th>Room</th><td>${record.room}</td>
-          </tr>
-          <tr>
-            <th>Floor</th><td>${record.floor}</td>
-            <th>Building</th><td>${record.buildingName}</td>
-          </tr>
-          <tr>
-            <th>Month</th><td>${record.month}</td>
-            <th>Year</th><td>${record.year}</td>
-          </tr>
-        </table>
+      th { background:#f2f2f2; }
 
-        <table>
-          <thead>
-            <tr>
-              <th>Previous</th>
-              <th>Current</th>
-              <th>Units</th>
-              <th>Rate</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>${record.previous}</td>
-              <td>${record.current}</td>
-              <td>${record.units}</td>
-              <td>${record.rate}</td>
-              <td>₹ ${record.amount}</td>
-            </tr>
-          </tbody>
-        </table>
+      .total-table { margin-top:10px; width:100%; border-collapse:collapse; font-size:12px; }
+      .total-table td { border:none; font-weight:bold; padding:6px; }
+      .total-label { text-align:left; }
+      .total-value { text-align:right; }
 
-        <table>
-          <tr class="total">
-            <td>Total Payable</td>
-            <td>₹ ${record.amount}</td>
-          </tr>
-        </table>
+      @media print {
+        .page { page-break-after: always; }
+      }
+    </style>
+  </head>
+  <body>
+  ` +
+      records
+        .map((record, index) => {
+          const isPageStart = index % 2 === 0
+          const isPageEnd = index % 2 === 1
+          return `
+        ${isPageStart ? `<div class="page">` : ``}
 
-      </div>
-    </body>
-    </html>
-    `
+          <div class="invoice">
+
+            <div class="logo-container">
+              <img src="/SettyRents.png" class="logo" />
+            </div>
+
+            <h2>Electricity Bill</h2>
+
+            <table>
+              <tr>
+                <th>Tenant</th><td>${record.tenantName}</td>
+                <th>Room</th><td>${record.room}</td>
+              </tr>
+              <tr>
+                <th>Floor</th><td>${record.floor}</td>
+                <th>Building</th><td>${record.buildingName}</td>
+              </tr>
+              <tr>
+                <th>Month</th><td>${record.month}</td>
+                <th>Year</th><td>${record.year}</td>
+              </tr>
+            </table>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Previous</th>
+                  <th>Current</th>
+                  <th>Units</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${record.previous}</td>
+                  <td>${record.current}</td>
+                  <td>${record.units}</td>
+                  <td>${record.rate}</td>
+                  <td>₹ ${record.amount}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Total Payable Block -->
+            <table class="total-table">
+              <tr>
+                <td class="total-label">Total Payable</td>
+                <td class="total-value">₹ ${record.amount}</td>
+              </tr>
+            </table>
+
+          </div>
+
+        ${isPageEnd || index === records.length - 1 ? `</div>` : ``}
+        `
+        })
+        .join('') +
+      `
+    <script>
+      window.onload = () => {
+        setTimeout(() => window.print(), 300);
+      }
+    </script>
+  </body>
+  </html>
+  `
+    )
   }
 
   const handlePrint = record => {
     const printWindow = window.open('', '', 'height=700,width=900')
-    printWindow.document.write(generatePrintHTML(record))
+    printWindow.document.write(generatePrintHTML([record]))
     printWindow.document.close()
-    printWindow.print()
   }
 
   const filteredRecords = records.filter(
@@ -225,13 +261,11 @@ const Bills = () => {
       (filterYear ? r.year.toString() === filterYear.toString() : true),
   )
 
+  // Print all filtered records
   const handlePrintAll = () => {
     const printWindow = window.open('', '', 'height=700,width=900')
-    filteredRecords.forEach(record => {
-      printWindow.document.write(generatePrintHTML(record))
-    })
+    printWindow.document.write(generatePrintHTML(filteredRecords))
     printWindow.document.close()
-    printWindow.print()
   }
 
   return (
@@ -384,7 +418,6 @@ const Bills = () => {
           </table>
         </div>
 
-        {/* MOBILE VIEW */}
         <div className='mobile-list'>
           {filteredRecords.map(item => (
             <div className='mobile-row' key={item.id}>
