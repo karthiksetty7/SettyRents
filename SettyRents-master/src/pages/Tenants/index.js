@@ -1,4 +1,4 @@
-import {useState, useRef} from 'react'
+import {useState, useRef, useEffect} from 'react'
 import Layout from '../../components/Layout'
 import './index.css'
 
@@ -28,12 +28,11 @@ const Tenants = () => {
   const [phone, setPhone] = useState('')
   const [advance, setAdvance] = useState('')
   const [joiningDate, setJoiningDate] = useState('')
-  const [file, setFile] = useState(null)
+  const [files, setFiles] = useState([])
 
   const [tenants, setTenants] = useState([])
   const [editingId, setEditingId] = useState(null)
 
-  // File input ref
   const fileInputRef = useRef(null)
 
   const filteredFloors = floors.filter(
@@ -44,11 +43,35 @@ const Tenants = () => {
       r.buildingId === parseInt(buildingId) && r.floorId === parseInt(floorId),
   )
 
+  // Load tenants from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('tenants')
+    if (stored) setTenants(JSON.parse(stored))
+  }, [])
+
+  // Save tenants to localStorage whenever tenants change
+  useEffect(() => {
+    localStorage.setItem('tenants', JSON.stringify(tenants))
+  }, [tenants])
+
+  const handleFileChange = e => {
+    const selectedFiles = Array.from(e.target.files)
+    const validFiles = selectedFiles.filter(f =>
+      ['image/png', 'image/jpeg', 'image/jpg'].includes(f.type),
+    )
+    setFiles(validFiles)
+  }
+
   const handleSubmit = e => {
     e.preventDefault()
     const building = buildings.find(b => b.id === parseInt(buildingId))
     const floor = floors.find(f => f.id === parseInt(floorId))
     const room = rooms.find(r => r.id === parseInt(roomId))
+
+    const filesData = files.map(f => ({
+      url: URL.createObjectURL(f),
+      type: f.type,
+    }))
 
     if (editingId) {
       setTenants(prev =>
@@ -63,8 +86,7 @@ const Tenants = () => {
                 building: building?.name,
                 floor: floor?.name,
                 room: room?.number,
-                file: file ? URL.createObjectURL(file) : t.file,
-                fileType: file?.type || t.fileType,
+                files: filesData.length ? filesData : t.files,
               }
             : t,
         ),
@@ -82,8 +104,7 @@ const Tenants = () => {
           building: building?.name,
           floor: floor?.name,
           room: room?.number,
-          file: file ? URL.createObjectURL(file) : null,
-          fileType: file?.type,
+          files: filesData,
         },
       ])
     }
@@ -114,11 +135,8 @@ const Tenants = () => {
     )
     setRoomId(roomObj?.id || '')
 
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-    setFile(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    setFiles([])
   }
 
   const handleDelete = id => {
@@ -136,85 +154,183 @@ const Tenants = () => {
     setBuildingId('')
     setFloorId('')
     setRoomId('')
-    setFile(null)
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    setFiles([])
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const printTenant = tenant => {
+    const filesHtml = tenant.files
+      ? tenant.files
+          .map((f, index) => {
+            if (index === 0 || index === 1)
+              return `<div class="full-page">
+                      ${
+                        f.type.includes('image')
+                          ? `<img src="${f.url}" />`
+                          : `<embed src="${f.url}" type="${f.type}" />`
+                      }
+                    </div>`
+            if (index === 2)
+              return `<div class="full-page">
+                      ${
+                        f.type.includes('image')
+                          ? `<img src="${f.url}" />`
+                          : `<embed src="${f.url}" type="${f.type}" />`
+                      }
+                    </div>`
+            return ''
+          })
+          .join('')
+      : ''
+
     const printWindow = window.open('', '_blank')
     printWindow.document.write(`
-      <html>
-        <head>
-          <title>Tenant Details</title>
-          <style>
-            body { font-family: Arial; padding: 20px; }
-            h2 { text-align: center; }
-            p { margin: 8px 0; }
-            img { max-width: 100%; margin-top: 10px; }
-            embed { width: 100%; height: 800px; margin-top: 10px; }
-          </style>
-        </head>
-        <body>
-          <h2>Tenant Details</h2>
-          <p><b>Name:</b> ${tenant.name}</p>
-          <p><b>Phone:</b> ${tenant.phone}</p>
-          <p><b>Building:</b> ${tenant.building}</p>
-          <p><b>Floor:</b> ${tenant.floor}</p>
-          <p><b>Room:</b> ${tenant.room}</p>
-          <p><b>Advance:</b> ${tenant.advance}</p>
-          <p><b>Joining Date:</b> ${tenant.joiningDate}</p>
-          ${
-            tenant.file
-              ? tenant.fileType?.includes('image')
-                ? `<img src="${tenant.file}" />`
-                : `<embed src="${tenant.file}" type="${tenant.fileType}" />`
-              : ''
+    <html>
+      <head>
+        <title>Tenant Details</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin:0; padding:0; }
+          .page { page-break-after: always; display:flex; justify-content:center; align-items:center; height:100vh; }
+          .page-border { border:2px solid #000; width:95%; height:95%; box-sizing:border-box; padding:30px; display:flex; flex-direction:column; }
+          .invoice { width:100%; height:100%; display:flex; flex-direction:column; }
+          .header { display:flex; align-items:center; gap:20px; margin-bottom:40px; }
+          .logo { max-width:120px; }
+          h2 { font-size:28px; margin:0; }
+          table { width:100%; border-collapse:collapse; font-size:24px; flex-grow:1; }
+          th, td { border:1px solid #000; padding:20px; text-align:left; vertical-align:middle; }
+          th { width:30%; background:#f2f2f2; font-weight:bold; }
+          td { width:70%; }
+          .full-page img, .full-page embed {
+            width:100%;
+            max-height:100vh;
+            display:block;
+            object-fit:contain;
+            margin-top:30px;
+            border:2px solid #000;   /* added border */
+            padding:10px;             /* padding inside border */
+            box-sizing:border-box;
+            border-radius:4px;        /* optional: rounded corners */
           }
-          <script>window.onload = function(){ window.print(); window.close(); }</script>
-        </body>
-      </html>
-    `)
+          .full-page { width:100%; page-break-after:always; margin-top:20px; }
+        </style>
+      </head>
+      <body>
+        <div class="page">
+          <div class="page-border">
+            <div class="invoice">
+              <div class="header">
+                <img src="/SettyRents.png" class="logo" />
+                <h2>Tenant Details</h2>
+              </div>
+              <table>
+                <tr><th>Name</th><td>${tenant.name}</td></tr>
+                <tr><th>Phone</th><td>${tenant.phone}</td></tr>
+                <tr><th>Building</th><td>${tenant.building}</td></tr>
+                <tr><th>Floor</th><td>${tenant.floor}</td></tr>
+                <tr><th>Room</th><td>${tenant.room}</td></tr>
+                <tr><th>Advance</th><td>${tenant.advance}</td></tr>
+                <tr><th>Joining Date</th><td>${tenant.joiningDate}</td></tr>
+              </table>
+              ${filesHtml}
+            </div>
+          </div>
+        </div>
+        <script>setTimeout(()=>{ window.print(); window.close(); }, 300);</script>
+      </body>
+    </html>
+  `)
     printWindow.document.close()
   }
 
   const printAll = () => {
     const printWindow = window.open('', '_blank')
     const content = tenants
-      .map(
-        t => `
-        <div style="margin-bottom:30px; page-break-inside: avoid;">
-          <h3>${t.name}</h3>
-          <p><b>Phone:</b> ${t.phone}</p>
-          <p><b>Building:</b> ${t.building}</p>
-          <p><b>Floor:</b> ${t.floor}</p>
-          <p><b>Room:</b> ${t.room}</p>
-          <p><b>Advance:</b> ${t.advance}</p>
-          <p><b>Joining Date:</b> ${t.joiningDate}</p>
-          ${
-            t.file
-              ? t.fileType?.includes('image')
-                ? `<img src="${t.file}" style="max-width:100%; margin-top:10px;" />`
-                : `<embed src="${t.file}" type="${t.fileType}" style="width:100%;height:800px; margin-top:10px;" />`
-              : ''
-          }
+      .map(tenant => {
+        const filesHtml = tenant.files
+          ? tenant.files
+              .map((f, index) => {
+                if (index === 0 || index === 1)
+                  return `<div class="full-page">
+                          ${
+                            f.type.includes('image')
+                              ? `<img src="${f.url}" />`
+                              : `<embed src="${f.url}" type="${f.type}" />`
+                          }
+                        </div>`
+                if (index === 2)
+                  return `<div class="full-page">
+                          ${
+                            f.type.includes('image')
+                              ? `<img src="${f.url}" />`
+                              : `<embed src="${f.url}" type="${f.type}" />`
+                          }
+                        </div>`
+                return ''
+              })
+              .join('')
+          : ''
+
+        return `
+        <div class="page">
+          <div class="page-border">
+            <div class="invoice">
+              <div class="header">
+                <img src="/SettyRents.png" class="logo" />
+                <h2>Tenant Details</h2>
+              </div>
+              <table>
+                <tr><th>Name</th><td>${tenant.name}</td></tr>
+                <tr><th>Phone</th><td>${tenant.phone}</td></tr>
+                <tr><th>Building</th><td>${tenant.building}</td></tr>
+                <tr><th>Floor</th><td>${tenant.floor}</td></tr>
+                <tr><th>Room</th><td>${tenant.room}</td></tr>
+                <tr><th>Advance</th><td>${tenant.advance}</td></tr>
+                <tr><th>Joining Date</th><td>${tenant.joiningDate}</td></tr>
+              </table>
+              ${filesHtml}
+            </div>
+          </div>
         </div>
-      `,
-      )
+      `
+      })
       .join('')
 
     printWindow.document.write(`
-      <html>
-        <head><title>All Tenants</title></head>
-        <body>
-          <h2 style="text-align:center;">All Tenants</h2>
-          ${content}
-          <script>window.onload = function(){ window.print(); window.close(); }</script>
-        </body>
-      </html>
-    `)
+    <html>
+      <head>
+        <title>All Tenants</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin:0; padding:0; }
+          .page { page-break-after: always; display:flex; justify-content:center; align-items:center; height:100vh; }
+          .page-border { border:2px solid #000; width:95%; height:95%; box-sizing:border-box; padding:30px; display:flex; flex-direction:column; }
+          .invoice { width:100%; height:100%; display:flex; flex-direction:column; }
+          .header { display:flex; align-items:center; gap:20px; margin-bottom:40px; }
+          .logo { max-width:120px; }
+          h2 { font-size:28px; margin:0; }
+          table { width:100%; border-collapse:collapse; font-size:24px; flex-grow:1; }
+          th, td { border:1px solid #000; padding:20px; text-align:left; vertical-align:middle; }
+          th { width:30%; background:#f2f2f2; font-weight:bold; }
+          td { width:70%; }
+          .full-page img, .full-page embed {
+            width:100%;
+            max-height:100vh;
+            display:block;
+            object-fit:contain;
+            margin-top:30px;
+            border:2px solid #000;   /* added border */
+            padding:10px;             /* padding inside border */
+            box-sizing:border-box;
+            border-radius:4px;        /* optional rounded corners */
+          }
+          .full-page { width:100%; page-break-after:always; margin-top:20px; }
+        </style>
+      </head>
+      <body>
+        ${content}
+        <script>setTimeout(()=>{ window.print(); window.close(); }, 300)</script>
+      </body>
+    </html>
+  `)
     printWindow.document.close()
   }
 
@@ -222,7 +338,6 @@ const Tenants = () => {
     <Layout>
       <div className='tenant-container'>
         <h2>{editingId ? 'Edit Tenant' : 'Add Tenant'}</h2>
-
         <form className='tenant-form' onSubmit={handleSubmit}>
           <select
             value={buildingId}
@@ -236,7 +351,6 @@ const Tenants = () => {
               </option>
             ))}
           </select>
-
           <select
             value={floorId}
             onChange={e => setFloorId(e.target.value)}
@@ -249,7 +363,6 @@ const Tenants = () => {
               </option>
             ))}
           </select>
-
           <select
             value={roomId}
             onChange={e => setRoomId(e.target.value)}
@@ -262,7 +375,6 @@ const Tenants = () => {
               </option>
             ))}
           </select>
-
           <input
             type='text'
             placeholder='Tenant Name'
@@ -292,11 +404,11 @@ const Tenants = () => {
           />
           <input
             type='file'
-            accept='image/*,.pdf'
+            accept='image/png, image/jpeg, image/jpg'
+            multiple
             ref={fileInputRef}
-            onChange={e => setFile(e.target.files[0])}
+            onChange={handleFileChange}
           />
-
           <button type='submit'>
             {editingId ? 'Update Tenant' : 'Add Tenant'}
           </button>
@@ -308,8 +420,6 @@ const Tenants = () => {
         </form>
 
         <h2>Tenants List</h2>
-
-        {/* Desktop Table */}
         <div className='table-container desktop-table'>
           <table>
             <thead>
@@ -337,11 +447,11 @@ const Tenants = () => {
                   <td>{t.advance}</td>
                   <td>{t.joiningDate}</td>
                   <td>
-                    {t.file && (
-                      <a href={t.file} target='_blank' rel='noreferrer'>
-                        View
+                    {t.files?.map((f, i) => (
+                      <a key={i} href={f.url} target='_blank' rel='noreferrer'>
+                        View{i > 0 ? ` ${i + 1}` : ''}
                       </a>
-                    )}
+                    ))}
                   </td>
                   <td>
                     <button className='edit-btn' onClick={() => handleEdit(t)}>
@@ -368,7 +478,6 @@ const Tenants = () => {
           </table>
         </div>
 
-        {/* Mobile List */}
         <div className='mobile-list'>
           {tenants.map(t => (
             <div key={t.id} className='mobile-row'>
@@ -400,16 +509,18 @@ const Tenants = () => {
                 <span className='label'>Joining:</span>{' '}
                 <span className='value'>{t.joiningDate}</span>
               </div>
-              {t.file && (
-                <div className='mobile-field'>
-                  <span className='label'>Document:</span>{' '}
+              {t.files?.map((f, i) => (
+                <div className='mobile-field' key={i}>
+                  <span className='label'>
+                    Document{i > 0 ? ` ${i + 1}` : ''}:
+                  </span>
                   <span className='value'>
-                    <a href={t.file} target='_blank' rel='noreferrer'>
+                    <a href={f.url} target='_blank' rel='noreferrer'>
                       View
                     </a>
                   </span>
                 </div>
-              )}
+              ))}
               <div className='mobile-field'>
                 <button className='edit-btn' onClick={() => handleEdit(t)}>
                   Edit
