@@ -46,6 +46,32 @@
   background-color: #ef4444;
 }
 
+/* ✅ NEW FILTER BOX (same style as form) */
+.filter-box {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.filter-box input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+  min-width: 150px;
+  font-size: 1rem;
+}
+
+.filter-box button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 /* CALCULATION BOX */
 .rent-calculation {
   flex: 1 1 100%;
@@ -144,7 +170,9 @@ table th {
 
   .rent-form input,
   .rent-form select,
-  .rent-form button {
+  .rent-form button,
+  .filter-box input,
+  .filter-box button {
     flex: 1 1 100%;
   }
 
