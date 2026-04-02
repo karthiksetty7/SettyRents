@@ -412,7 +412,7 @@ const Tenants = () => {
             </button>
           )}
         </form>
-        <h3>Filter Tenants</h3>
+        <h2>Filter Tenants</h2>
         <div className='tenant-filter-container'>
           <input
             placeholder='Tenant'
