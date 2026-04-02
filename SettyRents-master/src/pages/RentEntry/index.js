@@ -215,6 +215,7 @@ const RentEntry = () => {
     )
     const totalDue = filteredEntries.reduce((sum, e) => sum + Number(e.due), 0)
 
+    printWindow.document.open()
     printWindow.document.write(`
     <html>
       <head>
@@ -245,7 +246,11 @@ const RentEntry = () => {
       </head>
       <body>
         <div class="header">
-          ${logoBase64 ? `<img src="${logoBase64}" class="logo" />` : ''}
+          ${
+            logoBase64
+              ? `<img src="${logoBase64}" class="logo" id="logoImg" />`
+              : ''
+          }
           
           <div class="report-title">Rent Collection Report</div>
         </div>
@@ -283,8 +288,31 @@ const RentEntry = () => {
   `)
 
     printWindow.document.close()
-    printWindow.focus()
-    printWindow.print()
+
+    // ✅ Fix: Wait for logo to load before printing
+    const triggerPrint = () => {
+      printWindow.focus()
+      printWindow.print()
+      printWindow.close()
+    }
+
+    const waitForImage = () => {
+      const img = printWindow.document.getElementById('logoImg')
+
+      if (img) {
+        if (img.complete) {
+          triggerPrint()
+        } else {
+          img.onload = triggerPrint
+          img.onerror = triggerPrint
+        }
+      } else {
+        triggerPrint()
+      }
+    }
+
+    // Small delay ensures DOM is ready
+    setTimeout(waitForImage, 100)
   }
 
   return (
