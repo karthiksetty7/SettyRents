@@ -4,11 +4,13 @@ import './index.css'
 
 const RentEntry = () => {
   const [tenants] = useState([
-    {id: 1, name: 'Ravi', room: '101'},
-    {id: 2, name: 'Suresh', room: '201'},
+    {id: 1, name: 'Ravi'},
+    {id: 2, name: 'Suresh'},
   ])
 
   const [tenantId, setTenantId] = useState('')
+  const [building, setBuilding] = useState('')
+  const [room, setRoom] = useState('')
   const [month, setMonth] = useState('')
   const [rent, setRent] = useState('')
   const [water, setWater] = useState('')
@@ -21,6 +23,25 @@ const RentEntry = () => {
 
   const [entries, setEntries] = useState([])
   const [editingId, setEditingId] = useState(null)
+
+  // FILTER STATES
+  const [filterRoom, setFilterRoom] = useState('')
+  const [filterBuilding, setFilterBuilding] = useState('')
+  const [filterMonth, setFilterMonth] = useState('')
+  const [filterYear, setFilterYear] = useState('')
+
+  // LOGO BASE64
+  const [logoBase64, setLogoBase64] = useState('')
+
+  useEffect(() => {
+    fetch('/SettyRents.png')
+      .then(res => res.blob())
+      .then(blob => {
+        const reader = new FileReader()
+        reader.onloadend = () => setLogoBase64(reader.result)
+        reader.readAsDataURL(blob)
+      })
+  }, [])
 
   useEffect(() => {
     if (!tenantId || editingId) return
@@ -74,7 +95,8 @@ const RentEntry = () => {
       id: editingId || Date.now(),
       tenantId: parseInt(tenantId),
       tenant: tenant?.name,
-      room: tenant?.room,
+      building,
+      room,
       month,
       rent: Number(rent || 0),
       water: Number(water || 300),
@@ -101,6 +123,8 @@ const RentEntry = () => {
   const handleEdit = entry => {
     setEditingId(entry.id)
     setTenantId(entry.tenantId.toString())
+    setBuilding(entry.building)
+    setRoom(entry.room)
     setMonth(entry.month)
     setRent(entry.rent)
     setWater(entry.water)
@@ -121,6 +145,8 @@ const RentEntry = () => {
   const handleCancel = () => {
     setEditingId(null)
     setTenantId('')
+    setBuilding('')
+    setRoom('')
     setMonth('')
     setRent('')
     setWater('')
@@ -130,6 +156,135 @@ const RentEntry = () => {
     setPaid('')
     setAdvance('')
     setStatus('not vacated')
+  }
+
+  // FILTER LOGIC
+  const getFilteredEntries = () => {
+    return entries.filter(e => {
+      const [year, m] = e.month.split('-')
+      return (
+        (!filterRoom || e.room.includes(filterRoom)) &&
+        (!filterBuilding || e.building.includes(filterBuilding)) &&
+        (!filterMonth || m === filterMonth) &&
+        (!filterYear || year === filterYear)
+      )
+    })
+  }
+
+  const filteredEntries = getFilteredEntries()
+
+  const handlePrint = () => {
+    if (!filterBuilding.trim()) {
+      alert('Please enter Building name to print report')
+      return
+    }
+
+    if (filteredEntries.length === 0) {
+      alert('No records found')
+      return
+    }
+
+    const monthDisplay = filterMonth || ''
+    const yearDisplay = filterYear || ''
+
+    const printWindow = window.open('', '', 'width=900,height=700')
+
+    const tableRows = filteredEntries
+      .map(
+        (e, idx) => `
+      <tr style="background:${idx % 2 === 0 ? '#fdfdfd' : '#f1f4f8'}">
+        <td>${e.tenant}</td>
+        <td>${e.building}</td>
+        <td>${e.room}</td>
+        <td>${e.month}</td>
+        <td>₹ ${e.total}</td>
+        <td>₹ ${e.paid}</td>
+        <td>₹ ${e.due}</td>
+      </tr>
+    `,
+      )
+      .join('')
+
+    const totalAmount = filteredEntries.reduce(
+      (sum, e) => sum + Number(e.total),
+      0,
+    )
+    const totalPaid = filteredEntries.reduce(
+      (sum, e) => sum + Number(e.paid),
+      0,
+    )
+    const totalDue = filteredEntries.reduce((sum, e) => sum + Number(e.due), 0)
+
+    printWindow.document.write(`
+    <html>
+      <head>
+        <title>Rent Report</title>
+        <style>
+          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin:0; padding:30px; color:#333; background:#fff; }
+          .header { text-align:center; margin-bottom:15px; }
+          .logo { max-width:120px; display:block; margin:0 auto 10px auto; }
+          .company-name { font-size:28px; font-weight:bold; color:#2c3e50; margin-bottom:5px; }
+          .report-title { font-size:20px; color:#2980b9; margin-bottom:10px; font-weight:600; }
+
+          .info-bar { text-align:center; margin-bottom:25px; font-size:14px; color:#555; }
+          .info-bar span { margin: 0 15px; }
+
+          table { width:100%; border-collapse: collapse; font-size:14px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+          th { background: #2980b9; color: #fff; padding:12px 8px; text-align:center; font-weight:600; }
+          td { padding:10px 8px; text-align:center; border-bottom:1px solid #e0e0e0; }
+
+          tr:nth-child(even) { background:#f9f9f9; }
+
+          .totals { margin-top:20px; text-align:right; font-size:16px; font-weight:600; color:#2c3e50; }
+          .totals span { margin-left:25px; }
+
+          @media print {
+            body { -webkit-print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          ${logoBase64 ? `<img src="${logoBase64}" class="logo" />` : ''}
+          
+          <div class="report-title">Rent Collection Report</div>
+        </div>
+
+        <div class="info-bar">
+          <span>Building: <b>${filterBuilding}</b></span>
+          <span>Month: <b>${monthDisplay}</b></span>
+          <span>Year: <b>${yearDisplay}</b></span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Tenant</th>
+              <th>Building</th>
+              <th>Room</th>
+              <th>Month</th>
+              <th>Total</th>
+              <th>Paid</th>
+              <th>Due</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <span>Total Amount: ₹ ${totalAmount}</span>
+          <span>Total Paid: ₹ ${totalPaid}</span>
+          <span>Total Due: ₹ ${totalDue}</span>
+        </div>
+      </body>
+    </html>
+  `)
+
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
   }
 
   return (
@@ -146,10 +301,23 @@ const RentEntry = () => {
             <option value=''>Select Tenant</option>
             {tenants.map(t => (
               <option key={t.id} value={t.id}>
-                {t.name} - Room {t.room}
+                {t.name}
               </option>
             ))}
           </select>
+
+          <input
+            placeholder='Building'
+            value={building}
+            onChange={e => setBuilding(e.target.value)}
+            required
+          />
+          <input
+            placeholder='Room'
+            value={room}
+            onChange={e => setRoom(e.target.value)}
+            required
+          />
 
           <input
             type='month'
@@ -164,21 +332,18 @@ const RentEntry = () => {
             value={rent}
             onChange={e => setRent(e.target.value)}
           />
-
           <input
             type='number'
             placeholder='Water'
             value={water}
             onChange={e => setWater(e.target.value)}
           />
-
           <input
             type='number'
             placeholder='Maintenance'
             value={maintenance}
             onChange={e => setMaintenance(e.target.value)}
           />
-
           <input
             type='number'
             placeholder='Electricity'
@@ -199,7 +364,6 @@ const RentEntry = () => {
             value={paid}
             onChange={e => setPaid(e.target.value)}
           />
-
           <input
             type='number'
             placeholder='Advance'
@@ -220,21 +384,40 @@ const RentEntry = () => {
           <button type='submit'>
             {editingId ? 'Update Entry' : 'Save Entry'}
           </button>
-
-          {editingId && (
-            <button type='button' className='cancel-btn' onClick={handleCancel}>
-              Cancel
-            </button>
-          )}
         </form>
 
-        <h2>Rent Records</h2>
+        <h2>Filter Rent Details</h2>
+        <div className='filter-box'>
+          <input
+            placeholder='Room'
+            value={filterRoom}
+            onChange={e => setFilterRoom(e.target.value)}
+          />
+          <input
+            placeholder='Building'
+            value={filterBuilding}
+            onChange={e => setFilterBuilding(e.target.value)}
+          />
+          <input
+            placeholder='Month (MM)'
+            value={filterMonth}
+            onChange={e => setFilterMonth(e.target.value)}
+          />
+          <input
+            placeholder='Year (YYYY)'
+            value={filterYear}
+            onChange={e => setFilterYear(e.target.value)}
+          />
+          <button onClick={handlePrint}>Print Filtered</button>
+        </div>
 
+        <h2>Rent Records</h2>
         <div className='table-container'>
           <table>
             <thead>
               <tr>
                 <th>Tenant</th>
+                <th>Building</th>
                 <th>Room</th>
                 <th>Month</th>
                 <th>Total</th>
@@ -244,9 +427,10 @@ const RentEntry = () => {
               </tr>
             </thead>
             <tbody>
-              {entries.map(e => (
+              {filteredEntries.map(e => (
                 <tr key={e.id}>
                   <td>{e.tenant}</td>
+                  <td>{e.building}</td>
                   <td>{e.room}</td>
                   <td>{e.month}</td>
                   <td>{e.total}</td>
@@ -269,55 +453,6 @@ const RentEntry = () => {
               ))}
             </tbody>
           </table>
-        </div>
-
-        <div className='mobile-list'>
-          {entries.map(e => (
-            <div key={e.id} className='mobile-row'>
-              <div className='mobile-field'>
-                <span className='label'>Tenant:</span>
-                <span>{e.tenant}</span>
-              </div>
-
-              <div className='mobile-field'>
-                <span className='label'>Room:</span>
-                <span>{e.room}</span>
-              </div>
-
-              <div className='mobile-field'>
-                <span className='label'>Month:</span>
-                <span>{e.month}</span>
-              </div>
-
-              <div className='mobile-field'>
-                <span className='label'>Total:</span>
-                <span>{e.total}</span>
-              </div>
-
-              <div className='mobile-field'>
-                <span className='label'>Paid:</span>
-                <span>{e.paid}</span>
-              </div>
-
-              <div className='mobile-field'>
-                <span className='label'>Due:</span>
-                <span>{e.due}</span>
-              </div>
-
-              <div className='mobile-field'>
-                <button className='edit-btn' onClick={() => handleEdit(e)}>
-                  Edit
-                </button>
-
-                <button
-                  className='delete-btn'
-                  onClick={() => handleDelete(e.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </Layout>
