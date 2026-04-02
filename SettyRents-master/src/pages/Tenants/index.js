@@ -295,6 +295,11 @@ const Tenants = () => {
 
   // PRINT ALL (ORDER SAFE)
   const printAll = () => {
+    if (!filterBuilding.trim()) {
+      alert('Building is mandatory to print filtered tenants')
+      return
+    }
+
     const printWindow = window.open('', '_blank')
 
     if (!printWindow) {
