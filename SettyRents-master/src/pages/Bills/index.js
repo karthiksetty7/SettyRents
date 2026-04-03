@@ -294,12 +294,6 @@ setTimeout(() => window.print(), 300);
     )
   }
 
-  const handlePrint = record => {
-    const printWindow = window.open('', '', 'height=700,width=900')
-    printWindow.document.write(generatePrintHTML([record]))
-    printWindow.document.close()
-  }
-
   const filteredRecords = records.filter(
     r =>
       (filterTenant
@@ -459,12 +453,6 @@ setTimeout(() => window.print(), 300);
                     >
                       Delete
                     </button>
-                    <button
-                      className='print-btn'
-                      onClick={() => handlePrint(item)}
-                    >
-                      Print
-                    </button>
                   </td>
                 </tr>
               ))}
@@ -520,9 +508,6 @@ setTimeout(() => window.print(), 300);
                   onClick={() => handleDelete(item.id)}
                 >
                   Delete
-                </button>
-                <button className='print-btn' onClick={() => handlePrint(item)}>
-                  Print
                 </button>
               </div>
             </div>
