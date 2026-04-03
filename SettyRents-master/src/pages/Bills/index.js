@@ -119,124 +119,178 @@ const Bills = () => {
   const generatePrintHTML = records => {
     return (
       `
-  <html>
-  <head>
-    <title>Electricity Bills</title>
-    <style>
-      body { font-family: Arial, sans-serif; margin:0; padding:0; }
+<html>
+<head>
+<title>Electricity Bills</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin:0;
+  padding:0;
+}
 
-      .page {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        page-break-after: always;
-      }
+.page {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  page-break-after: always;
+}
 
-      .invoice {
-        border:2px solid #000;
-        padding:15px;
-        margin:10px;
-        flex: 1;
-        box-sizing: border-box;
-      }
+.invoice {
+  border:2px solid #000;
+  padding:20px;
+  margin-bottom:15px;
+  width:100%;
+  box-sizing:border-box;
+}
 
-      .logo-container { text-align:center; margin-bottom:10px; }
-      .logo { max-width:100px; }
+.logo-container {
+  text-align:center;
+  margin-bottom:8px;
+}
 
-      h2 { text-align:center; margin:10px 0; font-size:16px; }
+.logo {
+  max-width:120px;
+}
 
-      table { width:100%; border-collapse:collapse; margin-top:5px; font-size:12px; }
+h2 {
+  text-align:center;
+  margin:5px 0 12px;
+  font-size:18px;
+}
 
-      th, td { border:1px solid #000; padding:6px; text-align:left; vertical-align: middle; }
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  font-size:14px;
+}
 
-      th { background:#f2f2f2; }
+th, td {
+  border:1px solid #000;
+  padding:8px;
+  text-align:left;
+}
 
-      .total-table { margin-top:10px; width:100%; border-collapse:collapse; font-size:12px; }
-      .total-table td { border:none; font-weight:bold; padding:6px; }
-      .total-label { text-align:left; }
-      .total-value { text-align:right; }
+th {
+  background:#f2f2f2;
+}
 
-      @media print {
-        .page { page-break-after: always; }
-      }
-    </style>
-  </head>
-  <body>
-  ` +
+.info-table td {
+  width:25%;
+}
+
+.total-table {
+  margin-top:15px;
+  width:100%;
+  border-collapse:collapse;
+  font-size:15px;
+}
+
+.total-table td {
+  border:none;
+  font-weight:bold;
+  padding:8px 4px;
+}
+
+.total-label {
+  text-align:left;
+}
+
+.total-value {
+  text-align:right;
+  font-size:16px;
+}
+
+@media print {
+  .page {
+    page-break-after: always;
+  }
+}
+</style>
+</head>
+<body>
+` +
       records
         .map((record, index) => {
           const isPageStart = index % 2 === 0
           const isPageEnd = index % 2 === 1
+
           return `
-        ${isPageStart ? `<div class="page">` : ``}
+${isPageStart ? `<div class="page">` : ``}
 
-          <div class="invoice">
+<div class="invoice">
 
-            <div class="logo-container">
-              <img src="/SettyRents.png" class="logo" />
-            </div>
+<div class="logo-container">
+<img src="${logoBase64}" class="logo"/>
+</div>
 
-            <h2>Electricity Bill</h2>
+<h2>Electricity Bill</h2>
 
-            <table>
-              <tr>
-                <th>Tenant</th><td>${record.tenantName}</td>
-                <th>Room</th><td>${record.room}</td>
-              </tr>
-              <tr>
-                <th>Floor</th><td>${record.floor}</td>
-                <th>Building</th><td>${record.buildingName}</td>
-              </tr>
-              <tr>
-                <th>Month</th><td>${record.month}</td>
-                <th>Year</th><td>${record.year}</td>
-              </tr>
-            </table>
+<table class="info-table">
+<tr>
+<th>Tenant</th>
+<td>${record.tenantName}</td>
+<th>Room</th>
+<td>${record.room}</td>
+</tr>
+<tr>
+<th>Floor</th>
+<td>${record.floor}</td>
+<th>Building</th>
+<td>${record.buildingName}</td>
+</tr>
+<tr>
+<th>Month</th>
+<td>${record.month}</td>
+<th>Year</th>
+<td>${record.year}</td>
+</tr>
+</table>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Previous</th>
-                  <th>Current</th>
-                  <th>Units</th>
-                  <th>Rate</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>${record.previous}</td>
-                  <td>${record.current}</td>
-                  <td>${record.units}</td>
-                  <td>${record.rate}</td>
-                  <td>₹ ${record.amount}</td>
-                </tr>
-              </tbody>
-            </table>
+<table>
+<thead>
+<tr>
+<th>Previous</th>
+<th>Current</th>
+<th>Units</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>${record.previous}</td>
+<td>${record.current}</td>
+<td>${record.units}</td>
+<td>${record.rate}</td>
+<td>₹ ${record.amount}</td>
+</tr>
+</tbody>
+</table>
 
-            <!-- Total Payable Block -->
-            <table class="total-table">
-              <tr>
-                <td class="total-label">Total Payable</td>
-                <td class="total-value">₹ ${record.amount}</td>
-              </tr>
-            </table>
+<table class="total-table">
+<tr>
+<td class="total-label">Total Payable</td>
+<td class="total-value">₹ ${record.amount}</td>
+</tr>
+</table>
 
-          </div>
+</div>
 
-        ${isPageEnd || index === records.length - 1 ? `</div>` : ``}
-        `
+${isPageEnd || index === records.length - 1 ? `</div>` : ``}
+`
         })
         .join('') +
       `
-    <script>
-      window.onload = () => {
-        setTimeout(() => window.print(), 300);
-      }
-    </script>
-  </body>
-  </html>
-  `
+<script>
+window.onload = () => {
+setTimeout(() => window.print(), 300);
+}
+</script>
+</body>
+</html>
+`
     )
   }
 
